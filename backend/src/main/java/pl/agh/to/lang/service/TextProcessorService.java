@@ -5,7 +5,6 @@ import pl.agh.to.lang.model.Direction;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TextProcessorService {
@@ -16,14 +15,17 @@ public class TextProcessorService {
         }
 
         String sanitizedText = text.replaceAll("[^\\p{L}\\p{Z}]", " ").toLowerCase();
+        // if no words return empty list
+        if (sanitizedText.isBlank()) return List.of();
+
         List<String> words = Arrays.asList(sanitizedText.split("\\s+"));
 
         if (direction == Direction.RTL) {
             return words.stream()
                     .distinct()
                     .map(str -> new StringBuilder(str).reverse().toString())
-                    .collect(Collectors.toList());
+                    .toList();
         }
-        return words.stream().distinct().collect(Collectors.toList());
+        return words.stream().distinct().toList();
     }
 }
