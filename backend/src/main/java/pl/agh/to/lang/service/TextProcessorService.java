@@ -18,6 +18,12 @@ public class TextProcessorService {
         String sanitizedText = text.replaceAll("[^\\p{L}\\p{Z}]", " ").toLowerCase();
         List<String> words = Arrays.asList(sanitizedText.split("\\s+"));
 
+        if (direction == Direction.RTL) {
+            return words.stream()
+                    .distinct()
+                    .map(str -> new StringBuilder(str).reverse().toString())
+                    .collect(Collectors.toList());
+        }
         return words.stream().distinct().collect(Collectors.toList());
     }
 }
