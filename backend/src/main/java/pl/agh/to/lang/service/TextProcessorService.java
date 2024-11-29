@@ -9,23 +9,13 @@ import java.util.List;
 @Service
 public class TextProcessorService {
     public List<String> extractWords(String text, Direction direction) {
-
-        if (direction == Direction.RTL) {
-            text = new StringBuilder(text).reverse().toString();
-        }
-
+        boolean shouldReverse = direction == Direction.LTR;
         String sanitizedText = text.replaceAll("[^\\p{L}\\p{Z}]", " ").toLowerCase();
         // if no words return empty list
         if (sanitizedText.isBlank()) return List.of();
 
         List<String> words = Arrays.asList(sanitizedText.split("\\s+"));
-
-        if (direction == Direction.RTL) {
-            return words.stream()
-                    .distinct()
-                    .map(str -> new StringBuilder(str).reverse().toString())
-                    .toList();
-        }
-        return words.stream().distinct().toList();
+        List<String> orderedWords = shouldReverse ? words : words.reversed();
+        return orderedWords.stream().distinct().toList();
     }
 }
