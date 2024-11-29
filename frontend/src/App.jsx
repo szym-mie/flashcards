@@ -1,35 +1,46 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import Flashcard from "~/components/Flashcard";
+import CreateFlashcardDialog from "~/components/CreateFlashcardDialog";
+
+const flashcardsMockup = [
+  {
+    word: "Pies",
+    translation: "Dog",
+  },
+  {
+    word: "konstantynopolitańczykowianeczka",
+    translation: "",
+  },
+];
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <div className="py-24 px-4 flex flex-col items-center min-h-screen">
+      <div className="flex-1" />
+      {!flashcardsMockup.length ? (
+        <header className="text-center">
+          <h1>Brak fiszek</h1>
+          <p className="mt-2 muted">
+            Nie posiadasz żadnych fiszek, kliknij przycisk poniżej aby dodać
+            nowe.
+          </p>
+        </header>
+      ) : (
+        <>
+          <header className="text-center">
+            <h1>Twoje fiszki</h1>
+            <p className="mt-2 muted">Lista twoich wszystkich (2) fiszek.</p>
+          </header>
+          <div className="flex flex-col gap-y-3 mt-8 w-full max-w-[464px]">
+            {flashcardsMockup.map((flashcard) => (
+              <Flashcard key={flashcard.word} {...flashcard} />
+            ))}
+          </div>
+        </>
+      )}
+      <CreateFlashcardDialog className="mt-12" />
+      <div className="flex-1" />
+    </div>
+  );
 }
 
-export default App
+export default App;
