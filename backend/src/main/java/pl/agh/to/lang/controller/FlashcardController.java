@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import pl.agh.to.lang.model.TranslationRequest;
 import pl.agh.to.lang.model.WordTranslation;
 import pl.agh.to.lang.service.TextProcessorService;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collections;
@@ -16,14 +17,14 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class FlashcardController {
+    private final TextProcessorService textProcessorService;
 
-    private TextProcessorService textProcessorService;
-
-    private Map<String, String> translations = new HashMap<>();
+    private final Map<String, String> translations = new HashMap<>();
 
     public FlashcardController(TextProcessorService textProcessorService) {
         this.textProcessorService = textProcessorService;
     }
+
     @PostMapping("/text")
     public ResponseEntity<Map<String, List<String>>> processText(@RequestBody TranslationRequest request) {
         List<String> words = textProcessorService.extractWords(request.getText(), request.getDirection());
