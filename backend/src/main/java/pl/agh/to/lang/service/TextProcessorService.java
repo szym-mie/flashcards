@@ -1,6 +1,7 @@
 package pl.agh.to.lang.service;
 
 import org.springframework.stereotype.Service;
+import pl.agh.to.lang.dto.SentenceRequest;
 import pl.agh.to.lang.util.Direction;
 
 import java.util.Arrays;
@@ -15,5 +16,9 @@ public class TextProcessorService {
         List<String> words = Arrays.asList(sanitizedText.split("\\s+"));
 
         return shouldReverse ? words.reversed() : words;
+    }
+
+    public List<String> extractWords(SentenceRequest sentenceRequest) {
+        return this.extractWords(sentenceRequest.getText(), sentenceRequest.getDirection());
     }
 }

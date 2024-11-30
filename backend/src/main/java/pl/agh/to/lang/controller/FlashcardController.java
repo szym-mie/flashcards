@@ -1,7 +1,11 @@
 package pl.agh.to.lang.controller;
 
-import jakarta.servlet.http.HttpServletResponse;
+import com.fasterxml.jackson.databind.ObjectWriter;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.agh.to.lang.model.Flashcard;
@@ -11,20 +15,16 @@ import pl.agh.to.lang.service.FlashcardService;
 import pl.agh.to.lang.service.TextProcessorService;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api/flashcards")
+@AllArgsConstructor
 public class FlashcardController {
     private final TextProcessorService textProcessorService;
 
     private final FlashcardService flashcardService;
-
-    public FlashcardController(FlashcardService flashcardService, TextProcessorService textProcessorService) {
-        this.flashcardService = flashcardService;
-        this.textProcessorService = textProcessorService;
-    }
 
     @GetMapping
     public ResponseEntity<List<Flashcard>> retrieveAllFlashcards() {
@@ -33,14 +33,17 @@ public class FlashcardController {
 
     @PostMapping
     public ResponseEntity<String> processSentence(@Valid @RequestBody SentenceRequest sentenceRequest) {
-        List<String> words = textProcessorService.extractWords(sentenceRequest.getText(), sentenceRequest.getDirection());
+        List<String> words = textProcessorService.extractWords(sentenceRequest);
         words.forEach(flashcardService::add);
 
         return ResponseEntity.ok("Successfully processed!");
     }
 
     @PutMapping("/{word}")
-    public ResponseEntity<String> translateFlashcard(@PathVariable String word, @Valid @RequestBody TranslationRequest translationRequest) {
+    public ResponseEntity<String> translateFlashcard(
+            @PathVariable String word,
+            @Valid @RequestBody TranslationRequest translationRequest
+    ) {
         flashcardService.update(word, translationRequest.getText());
 
         return ResponseEntity.ok("Successfully translated!");
@@ -54,13 +57,24 @@ public class FlashcardController {
     }
 
     @GetMapping("/export")
-    public void exportToCSV(HttpServletResponse response) throws IOException {
-        response.setContentType("text/csv");
-        response.setHeader("Content-Disposition", "attachment; filename=\"flashcards.csv\"");
+    public ResponseEntity<String> exportToCSV() throws IOException {
+        CsvSchema schema = CsvSchema.builder()
+                .addColumn("word")
+                .addColumn("translation")
+                .build().withHeader();
 
-        try (PrintWriter writer = response.getWriter()) {
-            writer.println("Word,Translation");
-            flashcardService.getAll().forEach(flashcard -> writer.println(flashcard.getWord() + "," + flashcard.getTranslation()));
-        }
+        CsvMapper mapper = new CsvMapper();
+        StringWriter stringWriter = new StringWriter();
+        ObjectWriter csvWriter = mapper.writer(schema).forType(Flashcard.class);
+
+        for (Flashcard flashcard : flashcardService.getAll())
+            csvWriter.writeValue(stringWriter, flashcard);
+
+        System.out.println(stringWriter);
+
+        MediaType mediaType = MediaType.parseMediaType("text/csv");
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .body(stringWriter.toString());
     }
 }
