@@ -1,40 +1,56 @@
 package pl.agh.to.lang.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pl.agh.to.lang.model.Flashcard;
+import pl.agh.to.lang.model.SentenceRequest;
 import pl.agh.to.lang.model.TranslationRequest;
-import pl.agh.to.lang.model.WordTranslation;
+import pl.agh.to.lang.service.FlashcardService;
 import pl.agh.to.lang.service.TextProcessorService;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/flashcards")
 public class FlashcardController {
     private final TextProcessorService textProcessorService;
 
-    private final Map<String, String> translations = new HashMap<>();
+    private final FlashcardService flashcardService;
 
-    public FlashcardController(TextProcessorService textProcessorService) {
+    public FlashcardController(FlashcardService flashcardService, TextProcessorService textProcessorService) {
+        this.flashcardService = flashcardService;
         this.textProcessorService = textProcessorService;
     }
 
-    @PostMapping("/text")
-    public ResponseEntity<Map<String, List<String>>> processText(@RequestBody TranslationRequest request) {
-        List<String> words = textProcessorService.extractWords(request.getText(), request.getDirection());
-        return ResponseEntity.ok(Collections.singletonMap("words", words));
+    @GetMapping
+    public ResponseEntity<List<Flashcard>> retrieveAllFlashcards() {
+        return ResponseEntity.ok(flashcardService.getAll());
     }
 
-    @PostMapping("/translation")
-    public ResponseEntity<String> saveTranslations(@RequestBody WordTranslation translation) {
-        translations.put(translation.getWord(), translation.getTranslation());
-        return ResponseEntity.ok("Translations saved successfully!");
+    @PostMapping
+    public ResponseEntity<String> processSentence(@Valid @RequestBody SentenceRequest sentenceRequest) {
+        List<String> words = textProcessorService.extractWords(sentenceRequest.getText(), sentenceRequest.getDirection());
+        words.forEach(flashcardService::add);
+
+        return ResponseEntity.ok("Successfully processed!");
+    }
+
+    @PutMapping("/{word}")
+    public ResponseEntity<String> translateFlashcard(@PathVariable String word, @Valid @RequestBody TranslationRequest translationRequest) {
+        flashcardService.update(word, translationRequest.getText());
+
+        return ResponseEntity.ok("Successfully translated!");
+    }
+
+    @DeleteMapping("/{word}")
+    public ResponseEntity<String> removeFlashcard(@PathVariable String word) {
+        flashcardService.remove(word);
+
+        return ResponseEntity.ok("Successfully removed!");
     }
 
     @GetMapping("/export")
@@ -44,7 +60,7 @@ public class FlashcardController {
 
         try (PrintWriter writer = response.getWriter()) {
             writer.println("Word,Translation");
-            translations.forEach((word, translation) -> writer.println(word + "," + translation));
+            flashcardService.getAll().forEach(flashcard -> writer.println(flashcard.getWord() + "," + flashcard.getTranslation()));
         }
     }
 }
