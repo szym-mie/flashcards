@@ -13,7 +13,9 @@ public class TextProcessorService {
         boolean shouldReverse = direction == Direction.RTL;
         String sanitizedText = text.replaceAll("[^\\p{L}\\p{Z}]", " ").toLowerCase();
 
-        List<String> words = Arrays.asList(sanitizedText.split("\\s+"));
+        List<String> words = Arrays.stream(sanitizedText.split("\\s+"))
+                .filter(word -> !word.isBlank())
+                .toList();
 
         return shouldReverse ? words.reversed() : words;
     }

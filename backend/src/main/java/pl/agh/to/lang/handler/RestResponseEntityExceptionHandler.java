@@ -14,7 +14,7 @@ import java.io.IOException;
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ IOException.class })
     protected ResponseEntity<Object> handleIOException(
-            RuntimeException exception,
+            IOException exception,
             WebRequest request
     ) {
         String body = "IO exception occurred";
