@@ -78,6 +78,7 @@ const App = () => {
             <Breadcrumb 
               key="___create___" 
               mainText={<i>Dodaj...</i>}
+              noteText="fiszkę lub tekst"
               icon={Plus}
               variant="primary"
             >

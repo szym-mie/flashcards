@@ -19,7 +19,7 @@ const Breadcrumb = ({ mainText, noteText, icon, variant, children }) => {
     <>
       <div 
         onClick={openDialog}
-        className={"hover:underline cursor-pointer px-2 py-2 flex gap-4 items-center justify-between rounded-2xl " + Variant.of(variant, "outer")}
+        className={"hover:underline cursor-pointer px-3 py-2 flex gap-4 items-center justify-between rounded-2xl " + Variant.of(variant, "outer")}
       >
         <div>
           <p className="truncate">{mainText}</p> 
