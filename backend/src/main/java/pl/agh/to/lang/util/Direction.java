@@ -1,4 +1,4 @@
-package pl.agh.to.lang.enums;
+package pl.agh.to.lang.util;
 
 public enum Direction {
     LTR,

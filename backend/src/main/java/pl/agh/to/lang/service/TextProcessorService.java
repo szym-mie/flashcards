@@ -1,7 +1,7 @@
 package pl.agh.to.lang.service;
 
 import org.springframework.stereotype.Service;
-import pl.agh.to.lang.model.Direction;
+import pl.agh.to.lang.util.Direction;
 
 import java.util.Arrays;
 import java.util.List;

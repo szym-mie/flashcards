@@ -2,7 +2,7 @@ package pl.agh.to.lang.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pl.agh.to.lang.model.Direction;
+import pl.agh.to.lang.util.Direction;
 
 import java.util.List;
 

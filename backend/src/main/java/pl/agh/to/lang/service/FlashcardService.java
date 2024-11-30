@@ -23,7 +23,6 @@ public class FlashcardService {
 
     public Flashcard getByWordOrThrow(String word) {
         Optional<Flashcard> flashcard = getByWord(word);
-
         if (flashcard.isEmpty()) {
             throw new NotFoundException("Not found flashcard: " + word);
         }
@@ -32,8 +31,11 @@ public class FlashcardService {
     }
 
     public void add(String word) {
-        Optional<Flashcard> flashcard = getByWord(word);
+        if (word.isBlank()) {
+            return;
+        }
 
+        Optional<Flashcard> flashcard = getByWord(word);
         flashcard.ifPresent(value -> remove(value.getWord()));
 
         flashcards.add(new Flashcard(word, ""));

@@ -5,8 +5,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pl.agh.to.lang.model.Flashcard;
-import pl.agh.to.lang.model.SentenceRequest;
-import pl.agh.to.lang.model.TranslationRequest;
+import pl.agh.to.lang.dto.SentenceRequest;
+import pl.agh.to.lang.dto.TranslationRequest;
 import pl.agh.to.lang.service.FlashcardService;
 import pl.agh.to.lang.service.TextProcessorService;
 
