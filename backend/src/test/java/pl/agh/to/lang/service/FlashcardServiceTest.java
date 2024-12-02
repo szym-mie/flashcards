@@ -4,27 +4,29 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.agh.to.lang.exception.NotFoundException;
 import pl.agh.to.lang.model.Flashcard;
+
 import java.util.List;
 import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class FlashcardServiceTest {
+class FlashcardServiceTest {
 
     private FlashcardService flashcardService;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         flashcardService = new FlashcardService();
     }
 
     @Test
-    public void testGetAllInitiallyEmpty() {
+    void testGetAllInitiallyEmpty() {
         List<Flashcard> flashcards = flashcardService.getAll();
         assertTrue(flashcards.isEmpty());
     }
 
     @Test
-    public void testAddFlashcard() {
+    void testAddFlashcard() {
         flashcardService.add("hello");
         List<Flashcard> flashcards = flashcardService.getAll();
 
@@ -34,7 +36,7 @@ public class FlashcardServiceTest {
     }
 
     @Test
-    public void testAddDuplicateFlashcard() {
+    void testAddDuplicateFlashcard() {
         flashcardService.add("hello");
         flashcardService.add("hello");
 
@@ -43,7 +45,7 @@ public class FlashcardServiceTest {
     }
 
     @Test
-    public void testAddBlankWord() {
+    void testAddBlankWord() {
         flashcardService.add("   ");
         List<Flashcard> flashcards = flashcardService.getAll();
 
@@ -51,7 +53,7 @@ public class FlashcardServiceTest {
     }
 
     @Test
-    public void testGetByWord() {
+    void testGetByWord() {
         flashcardService.add("world");
         Optional<Flashcard> flashcard = flashcardService.getByWord("world");
 
@@ -60,13 +62,13 @@ public class FlashcardServiceTest {
     }
 
     @Test
-    public void testGetByWordNonExistent() {
+    void testGetByWordNonExistent() {
         Optional<Flashcard> flashcard = flashcardService.getByWord("nonexistent");
         assertTrue(flashcard.isEmpty());
     }
 
     @Test
-    public void testGetByWordOrThrow() {
+    void testGetByWordOrThrow() {
         flashcardService.add("example");
         Flashcard flashcard = flashcardService.getByWordOrThrow("example");
 
@@ -74,14 +76,14 @@ public class FlashcardServiceTest {
     }
 
     @Test
-    public void testGetByWordOrThrowNonExistent() {
+    void testGetByWordOrThrowNonExistent() {
         Exception exception = assertThrows(NotFoundException.class, () -> flashcardService.getByWordOrThrow("nonexistent"));
 
         assertEquals("Not found flashcard: nonexistent", exception.getMessage());
     }
 
     @Test
-    public void testUpdateTranslation() {
+    void testUpdateTranslation() {
         flashcardService.add("hello");
         flashcardService.update("hello", "cześć");
 
@@ -90,14 +92,14 @@ public class FlashcardServiceTest {
     }
 
     @Test
-    public void testUpdateNonExistentFlashcard() {
+    void testUpdateNonExistentFlashcard() {
         Exception exception = assertThrows(NotFoundException.class, () -> flashcardService.update("nonexistent", "missing"));
 
         assertEquals("Not found flashcard: nonexistent", exception.getMessage());
     }
 
     @Test
-    public void testRemoveFlashcard() {
+    void testRemoveFlashcard() {
         flashcardService.add("delete");
         flashcardService.remove("delete");
 
@@ -106,7 +108,7 @@ public class FlashcardServiceTest {
     }
 
     @Test
-    public void testRemoveNonExistentFlashcard() {
+    void testRemoveNonExistentFlashcard() {
         Exception exception = assertThrows(NotFoundException.class, () -> flashcardService.remove("nonexistent"));
 
         assertEquals("Not found flashcard: nonexistent", exception.getMessage());

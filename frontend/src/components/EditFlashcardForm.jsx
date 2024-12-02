@@ -5,26 +5,27 @@ import Button from "~/components/Button";
 import Input from "~/components/Input";
 import FormField from "~/components/FormField";
 import Textarea from "~/components/Textarea";
-import { useContext } from "react";
-import FlashcardContext from "../context/FlashcardContext";
+import { useFlashcards } from "~/providers/FlashcardProvider";
 
 const EditFlashcardForm = ({ word, translation }) => {
   const close = useClose();
-  const {update, setUpdate} = useContext(FlashcardContext);
+  const { updateFlashcard, removeFlashcard } = useFlashcards();
 
-  const handleSubmit = (ev) => {
-    ev.preventDefault();
-    const formData = new FormData(ev.target);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(event.target);
     const translation = formData.get("translation");
 
-    fetch("/api/flashcards/" + word, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: translation }) })
-      .then(status => {
-        console.log(status.text());
-        setUpdate(update + 1);
-        close();
-      });
+    await updateFlashcard(word, { text: translation });
 
-    console.log(word, translation);
+    close();
+  };
+
+  const handleRemove = async () => {
+    await removeFlashcard(word);
+
+    close();
   };
 
   return (
@@ -47,6 +48,7 @@ const EditFlashcardForm = ({ word, translation }) => {
             </FormField>
             <div className="mt-6 flex justify-end gap-2">
               <Button text="Anuluj" variant="secondary" onClick={close} />
+              <Button variant="secondary" text="Usuń" onClick={handleRemove} />
               <Button type="submit" text="Zapisz" />
             </div>
           </form>

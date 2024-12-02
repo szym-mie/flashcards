@@ -70,8 +70,6 @@ public class FlashcardController {
         for (Flashcard flashcard : flashcardService.getAll())
             csvWriter.writeValue(stringWriter, flashcard);
 
-        System.out.println(stringWriter);
-
         MediaType mediaType = MediaType.parseMediaType("text/csv");
         return ResponseEntity.ok()
                 .contentType(mediaType)

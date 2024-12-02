@@ -14,13 +14,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = {TestController.class, RestResponseEntityExceptionHandler.class})
-public class RestResponseEntityExceptionHandlerTest {
+class RestResponseEntityExceptionHandlerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @Test
-    public void testHandleIOException() throws Exception {
+    void testHandleIOException() throws Exception {
         mockMvc.perform(get("/test/ioexception"))
                 .andExpect(status().isInternalServerError())
                 .andExpect(content().string("IO exception occurred"));

@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(FlashcardController.class)
-public class FlashcardControllerTests {
+class FlashcardControllerTests {
     @Autowired
     private MockMvc mvc;
 
@@ -33,7 +33,7 @@ public class FlashcardControllerTests {
     private FlashcardService flashcardService;
 
     @Test
-    public void testRetrieveAllFlashcards() throws Exception {
+    void testRetrieveAllFlashcards() throws Exception {
         Mockito.when(flashcardService.getAll()).thenReturn(List.of(
                 new Flashcard("hello", "cześć"),
                 new Flashcard("world", "świat")
@@ -48,7 +48,7 @@ public class FlashcardControllerTests {
     }
 
     @Test
-    public void testProcessSentence() throws Exception {
+    void testProcessSentence() throws Exception {
         Mockito.when(textProcessorService.extractWords(Mockito.any())).thenReturn(List.of("word1", "word2"));
         Mockito.doNothing().when(flashcardService).add(Mockito.any());
 
@@ -62,7 +62,7 @@ public class FlashcardControllerTests {
     }
 
     @Test
-    public void testTranslateFlashcard() throws Exception {
+    void testTranslateFlashcard() throws Exception {
         Mockito.doNothing().when(flashcardService).update(Mockito.anyString(), Mockito.anyString());
 
         mvc.perform(MockMvcRequestBuilders.put("/api/flashcards/hello")
@@ -75,7 +75,7 @@ public class FlashcardControllerTests {
     }
 
     @Test
-    public void testRemoveFlashcard() throws Exception {
+    void testRemoveFlashcard() throws Exception {
         Mockito.doNothing().when(flashcardService).remove(Mockito.anyString());
 
         mvc.perform(MockMvcRequestBuilders.delete("/api/flashcards/hello"))
@@ -92,7 +92,7 @@ public class FlashcardControllerTests {
     }
 
     @Test
-    public void testCSVExport() throws Exception {
+    void testCSVExport() throws Exception {
         Mockito.when(flashcardService.getAll()).thenReturn(List.of(
                 new Flashcard("Peter", "Piotr")
         ));

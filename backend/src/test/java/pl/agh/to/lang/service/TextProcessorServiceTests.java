@@ -2,13 +2,12 @@ package pl.agh.to.lang.service;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import pl.agh.to.lang.dto.SentenceRequest;
 import pl.agh.to.lang.util.Direction;
 
 import java.util.Collections;
 import java.util.List;
 
-public class TextProcessorServiceTests {
+class TextProcessorServiceTests {
     private final TextProcessorService service = new TextProcessorService();
 
     private void testString(String text, List<String> expected, Direction direction) {
@@ -17,7 +16,7 @@ public class TextProcessorServiceTests {
     }
 
     @Test
-    public void testLTR() {
+    void testLTR() {
         Direction d = Direction.LTR;
         testString("", List.of(), d);
         testString("   \n\t", List.of(), d);
@@ -31,7 +30,7 @@ public class TextProcessorServiceTests {
     }
 
     @Test
-    public void testRTL() {
+    void testRTL() {
         Direction d = Direction.RTL;
         testString("", List.of(), d);
         testString("   \n\t", List.of(), d);
@@ -44,13 +43,13 @@ public class TextProcessorServiceTests {
     }
 
     @Test
-    public void testExtractWordsFromSentenceRequest() {
+    void testExtractWordsFromSentenceRequest() {
         List<String> result = service.extractWords("a b c", Direction.LTR);
         Assertions.assertEquals(List.of("a", "b", "c"), result);
     }
 
     @Test
-    public void testLongText() {
+    void testLongText() {
         String longText = "a ".repeat(1000).trim();
         List<String> expected = Collections.nCopies(1000, "a");
         testString(longText, expected, Direction.LTR);
