@@ -5,15 +5,24 @@ import Button from "~/components/Button";
 import Input from "~/components/Input";
 import FormField from "~/components/FormField";
 import Textarea from "~/components/Textarea";
+import { useContext } from "react";
+import FlashcardContext from "../context/FlashcardContext";
 
 const EditFlashcardForm = ({ word, translation }) => {
   const close = useClose();
+  const {update, setUpdate} = useContext(FlashcardContext);
 
   const handleSubmit = (ev) => {
     ev.preventDefault();
     const formData = new FormData(ev.target);
-    const word = formData.get("word");
     const translation = formData.get("translation");
+
+    fetch("/api/flashcards/" + word, { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text: translation }) })
+      .then(status => {
+        console.log(status.text());
+        setUpdate(update + 1);
+        close();
+      });
 
     console.log(word, translation);
   };
