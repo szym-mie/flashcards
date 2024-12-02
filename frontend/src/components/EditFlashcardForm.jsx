@@ -6,11 +6,10 @@ import Input from "~/components/Input";
 import FormField from "~/components/FormField";
 import Textarea from "~/components/Textarea";
 
-
 const EditFlashcardForm = ({ word, translation }) => {
   const close = useClose();
 
-  const handleSubmit = ev => {
+  const handleSubmit = (ev) => {
     ev.preventDefault();
     const formData = new FormData(ev.target);
     const word = formData.get("word");
@@ -32,7 +31,7 @@ const EditFlashcardForm = ({ word, translation }) => {
           </header>
           <form onSubmit={handleSubmit}>
             <FormField label="Słowo" className="mt-6">
-              <Input name="word" defaultValue={word} />
+              <Input name="word" defaultValue={word} disabled />
             </FormField>
             <FormField label="Tłumaczenie" className="mt-4">
               <Textarea name="translation" defaultValue={translation} />

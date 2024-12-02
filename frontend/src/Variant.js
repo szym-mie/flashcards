@@ -1,29 +1,33 @@
 class Variant {
   static iconClasses = {
-    primary: "w-12 h-12 text-white bg-black shadow-[0_2px_4px_0px_rgba(0,0,0,0.3)]",
-    secondary: "p-1.5 text-black bg-slate-100 [&>svg]:w-[15px] [&>svg]:h-[15px]",
-  }
+    primary:
+      "w-12 h-12 text-white bg-black shadow-[0_2px_4px_0px_rgba(0,0,0,0.3)]",
+    secondary:
+      "p-1.5 text-black bg-slate-100 [&>svg]:w-[15px] [&>svg]:h-[15px]",
+  };
 
   static solidClasses = {
     primary: "text-white bg-black shadow-[0_2px_4px_0px_rgba(0,0,0,0.3)]",
-    secondary: "p-1.5 text-black bg-slate-100 [&>svg]:w-[15px] [&>svg]:h-[15px]",
+    secondary:
+      "p-1.5 text-black bg-slate-100 [&>svg]:w-[15px] [&>svg]:h-[15px]",
   };
 
   static outerClasses = {
-    primary: "text-white bg-black shadow-[0_2px_4px_0px_rgba(0,0,0,0.3)]",
+    primary:
+      "text-white bg-black shadow-[0_2px_4px_0px_rgba(0,0,0,0.3)] [&>div>p.muted]:text-[#acacac]",
     secondary: " border p-1.5",
   };
 
   static classes = {
     icon: Variant.iconClasses,
     solid: Variant.solidClasses,
-    outer: Variant.outerClasses
+    outer: Variant.outerClasses,
   };
 
-  static defaultClass = variantClass => variantClass.secondary;
+  static defaultClass = (variantClass) => variantClass.secondary;
 
   /**
-   * 
+   *
    * @param {string} variantName Select variant (primary/secondary)
    * @param {string} classType Specify to get only one class type
    * @returns {string} Variant class string
@@ -40,5 +44,5 @@ class Variant {
     return maybeVariantClass;
   }
 }
-  
+
 export default Variant;
