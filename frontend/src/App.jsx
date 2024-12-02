@@ -2,9 +2,10 @@ import Breadcrumb from "~/components/Breadcrumb";
 import CreateFlashcardForm from "~/components/CreateFlashcardForm";
 import EditFlashcardForm from "~/components/EditFlashcardForm";
 
-import { Pen, Plus } from "lucide-react";
+import { FileDown, Pen, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import FlashcardContext from "./context/FlashcardContext";
+import ExportForm from "./components/ExportForm";
 
 const flashcardsMockup = [
   {
@@ -114,6 +115,15 @@ const App = () => {
           </>
         )}
         <div className="flex-1" />
+        <div className="h-4"></div>
+        <Breadcrumb
+          mainText={<i>Eksportuj...</i>}
+          noteText="do pliku CSV"
+          icon={FileDown}
+          variant="primary"
+        >
+          <ExportForm />
+        </Breadcrumb>
       </div>
     </FlashcardContext.Provider>
   );
