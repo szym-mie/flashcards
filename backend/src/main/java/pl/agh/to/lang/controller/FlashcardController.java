@@ -65,12 +65,8 @@ public class FlashcardController {
 
         CsvMapper mapper = new CsvMapper();
         StringWriter stringWriter = new StringWriter();
-        ObjectWriter csvWriter = mapper.writer(schema).forType(Flashcard.class);
-
-        for (Flashcard flashcard : flashcardService.getAll())
-            csvWriter.writeValue(stringWriter, flashcard);
-
-        System.out.println(stringWriter);
+        ObjectWriter csvWriter = mapper.writer(schema).forType(List.class);
+        csvWriter.writeValue(stringWriter, flashcardService.getAll());
 
         MediaType mediaType = MediaType.parseMediaType("text/csv");
         return ResponseEntity.ok()
