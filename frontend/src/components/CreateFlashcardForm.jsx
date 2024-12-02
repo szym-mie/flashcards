@@ -4,15 +4,26 @@ import IconButton from "~/components/IconButton";
 import Button from "~/components/Button";
 import FormField from "~/components/FormField";
 import Textarea from "~/components/Textarea";
+import { useContext } from "react";
+import FlashcardContext from "../context/FlashcardContext";
 
 
 const CreateFlashcardForm = () => {
   const close = useClose();
+  const {update, setUpdate} = useContext(FlashcardContext);
 
   const handleSubmit = ev => {
     ev.preventDefault();
     const formData = new FormData(ev.target);
     const text = formData.get("text");
+    const direction = "LTR";
+
+    fetch("/api/flashcards", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ text, direction }) })
+      .then(status => {
+        console.log(status.text());
+        setUpdate(update + 1);
+        close();
+      });
 
     console.log(text);
   };
