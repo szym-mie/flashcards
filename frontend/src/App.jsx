@@ -1,7 +1,8 @@
-import { Pen, Plus } from "lucide-react";
+import { FileDown, Pen, Plus } from "lucide-react";
 import Breadcrumb from "~/components/Breadcrumb";
 import CreateFlashcardForm from "~/components/CreateFlashcardForm";
 import EditFlashcardForm from "~/components/EditFlashcardForm";
+import ExportForm from "~/components/ExportForm";
 import FlashcardProvider from "~/providers/FlashcardProvider";
 
 const App = () => {
@@ -62,6 +63,15 @@ const App = () => {
             </>
           )}
           <div className="flex-1" />
+          <div className="h-4"></div>
+          <Breadcrumb
+            mainText={<i>Eksportuj...</i>}
+            noteText="do pliku CSV"
+            icon={FileDown}
+            variant="primary"
+          >
+            <ExportForm />
+          </Breadcrumb>
         </div>
       )}
     </FlashcardProvider>

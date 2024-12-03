@@ -18,10 +18,16 @@ class Variant {
     secondary: " border p-1.5",
   };
 
+  static buttonClasses = {
+    primary: "bg-black text-white",
+    secondary: "bg-slate-100 text-black",
+  };
+
   static classes = {
     icon: Variant.iconClasses,
     solid: Variant.solidClasses,
     outer: Variant.outerClasses,
+    button: Variant.buttonClasses,
   };
 
   static defaultClass = (variantClass) => variantClass.secondary;

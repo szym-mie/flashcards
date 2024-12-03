@@ -26,3 +26,11 @@ export const updateFlashcard = async (word, payload) => {
 export const removeFlashcard = async (word) => {
   return await fetch(`${API_BASE_FLASHCARDS}/${word}`, { method: "DELETE" });
 };
+
+export const exportFlashcards = async () => {
+  const result = await fetch(`${API_BASE_FLASHCARDS}/export`, {
+    method: "GET",
+  });
+
+  return await result.text();
+};

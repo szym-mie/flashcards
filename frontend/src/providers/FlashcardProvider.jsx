@@ -5,6 +5,7 @@ const FlashcardContext = createContext(null);
 
 const FlashcardProvider = ({ children }) => {
   const [flashcards, setFlashcards] = useState([]);
+  const [exportCSV, setExportCSV] = useState(null);
 
   useEffect(() => {
     revalidate();
@@ -30,9 +31,21 @@ const FlashcardProvider = ({ children }) => {
     revalidate();
   };
 
+  const exportFlashcards = async () => {
+    const exportCSV = await api.exportFlashcards();
+    setExportCSV(exportCSV);
+  };
+
   return (
     <FlashcardContext.Provider
-      value={{ flashcards, addFlashcards, updateFlashcard, removeFlashcard }}
+      value={{
+        flashcards,
+        exportCSV,
+        addFlashcards,
+        updateFlashcard,
+        removeFlashcard,
+        exportFlashcards,
+      }}
     >
       {children({ flashcards })}
     </FlashcardContext.Provider>
