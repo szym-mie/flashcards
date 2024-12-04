@@ -12,11 +12,8 @@ import java.io.IOException;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler({IOException.class})
-    protected ResponseEntity<Object> handleIOException(
-            IOException exception,
-            WebRequest request
-    ) {
+    @ExceptionHandler({ IOException.class })
+    protected ResponseEntity<Object> handleIOException(IOException exception, WebRequest request) {
         String body = "IO exception occurred";
         return this.handleExceptionInternal(
                 exception,

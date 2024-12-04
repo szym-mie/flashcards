@@ -11,7 +11,8 @@ import java.util.List;
 public class TextProcessorService {
     public List<String> extractWords(String text, Direction direction) {
         boolean shouldReverse = direction == Direction.RTL;
-        String sanitizedText = text.replaceAll("[^\\p{L}\\p{Z}]", " ").toLowerCase();
+        String sanitizedText = text.replaceAll("[^\\p{L}\\p{Z}]", " ")
+                .toLowerCase();
 
         List<String> words = Arrays.stream(sanitizedText.split("\\s+"))
                 .filter(word -> !word.isBlank())
