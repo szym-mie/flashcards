@@ -1,10 +1,10 @@
 package pl.agh.to.lang.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
+import lombok.Data;
 import pl.agh.to.lang.util.Direction;
 
-@Getter
+@Data
 public class SentenceRequest {
     @NotBlank
     private String text;
