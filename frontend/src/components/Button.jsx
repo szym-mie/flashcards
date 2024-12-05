@@ -1,6 +1,12 @@
 import Variant from "../Variant";
 
-const Button = ({ type = "button", variant = "primary", icon=null, text, ...props }) => {
+const Button = ({
+  type = "button",
+  variant = "primary",
+  icon = null,
+  text,
+  ...props
+}) => {
   const Icon = icon;
 
   return (
