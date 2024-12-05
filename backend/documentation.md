@@ -56,6 +56,12 @@ Celem pierwszego etapu jest stworzenie aplikacji, która pozwoli na:
 
 ---
 
+## API - Swagger UI
+
+Wystarczy uruchomić serwer i 
+[przejść na stronę Swagger UI](http://localhost:8080/swagger-ui.html)
+
+
 ## Struktura projektu - backend
 
 Główne pakiety projektu to:
