@@ -29,13 +29,22 @@ public class FlashcardRepository {
         return findByWord(word).orElseThrow();
     }
 
-    public void add(Flashcard flashcard) {
+    public boolean add(Flashcard flashcard) {
         // we don't want to override previous translation
-        flashcards.putIfAbsent(flashcard.getWord(), flashcard);
+        String key = flashcard.getWord();
+
+        if (flashcards.get(key) == null) {
+            flashcards.put(key, flashcard);
+            return true;
+        }
+
+        return false;
     }
 
-    public void addAll(Collection<Flashcard> flashcardColl) {
-        flashcardColl.forEach(this::add);
+    public List<Flashcard> addAll(Collection<Flashcard> flashcardColl) {
+        return flashcardColl.stream()
+                .filter(this::add)
+                .toList();
     }
 
     public void updateByWord(String word, String translation) {

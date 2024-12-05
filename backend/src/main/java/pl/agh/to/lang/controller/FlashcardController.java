@@ -43,9 +43,9 @@ public class FlashcardController {
                 .map(Flashcard::new)
                 .toList();
 
-        flashcardRepository.addAll(flashcardList);
+        List<Flashcard> addedFlashcardList = flashcardRepository.addAll(flashcardList);
 
-        return ResponseEntity.ok(flashcardList);
+        return ResponseEntity.ok(addedFlashcardList);
     }
 
     @PutMapping
