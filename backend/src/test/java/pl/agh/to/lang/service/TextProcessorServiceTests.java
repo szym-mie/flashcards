@@ -25,8 +25,8 @@ class TextProcessorServiceTests {
         testString("a\nb\tc", List.of("a", "b", "c"), d);
         testString("abc    def\n  ghi", List.of("abc", "def", "ghi"), d);
         testString("abc\n\t  bed\n\tcet", List.of("abc", "bed", "cet"), d);
-        testString("123 !@# a b c", List.of("a", "b", "c"), d);
-        testString("Привет мир", List.of("привет", "мир"), d);
+        testString("123 !@# a b c", List.of("123", "!@#", "a", "b", "c"), d);
+        testString("Привет мир", List.of("Привет", "мир"), d);
     }
 
     @Test
@@ -35,11 +35,12 @@ class TextProcessorServiceTests {
         testString("", List.of(), d);
         testString("   \n\t", List.of(), d);
         testString("a", List.of("a"), d);
-        testString("a b c", List.of("c", "b", "a"), d);
-        testString("a\nb\tc", List.of("c", "b", "a"), d);
-        testString("abc    def\n  ghi", List.of("ghi", "def", "abc"), d);
-        testString("abc\n\t  bed\n\tcet", List.of("cet", "bed", "abc"), d);
-        testString("שלום עולם", List.of("עולם", "שלום"), d);
+        testString("a b c", List.of("a", "b", "c"), d);
+        testString("a\nb\tc", List.of("a", "b", "c"), d);
+        testString("abc    def\n  ghi", List.of("abc", "def", "ghi"), d);
+        testString("abc\n\t  bed\n\tcet", List.of("abc", "bed", "cet"), d);
+        testString("שלום עולם", List.of("שלום", "עולם"), d);
+        testString("אַמְרָפֶ֣ל  מֶֽלֶךְ־ שִׁנְעָ֔ר", List.of("אַמְרָפֶ֣ל", "מֶֽלֶךְ־", "שִׁנְעָ֔ר"), d);
     }
 
     @Test

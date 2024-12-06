@@ -10,15 +10,12 @@ import java.util.List;
 @Service
 public class TextProcessorService {
     public List<String> extractWords(String text, Direction direction) {
-        boolean shouldReverse = direction == Direction.RTL;
-        String sanitizedText = text.replaceAll("[^\\p{L}\\p{Z}]", " ")
-                .toLowerCase();
+//        String sanitizedText = text.replaceAll("[^\\p{L}\\p{Z}]", " ")
+//                .toLowerCase();
 
-        List<String> words = Arrays.stream(sanitizedText.split("\\s+"))
+        return Arrays.stream(text.split("[ \\n\\t\\p{Z}]+"))
                 .filter(word -> !word.isBlank())
                 .toList();
-
-        return shouldReverse ? words.reversed() : words;
     }
 
     public List<String> extractWords(SentenceRequest sentenceRequest) {

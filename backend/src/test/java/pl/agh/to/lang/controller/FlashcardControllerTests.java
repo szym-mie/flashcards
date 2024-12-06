@@ -51,17 +51,23 @@ public class FlashcardControllerTests {
     @Test
     public void testProcessSentence() throws Exception {
         Mockito.when(textProcessorService.extractWords(Mockito.any()))
-                .thenReturn(List.of("word1", "word2"));
+                .thenCallRealMethod();
 
-        Mockito.doNothing().when(flashcardRepository).add(Mockito.any());
+        List<Flashcard> flashcardList = List.of(
+                new Flashcard("example"),
+                new Flashcard("text")
+        );
+
+        Mockito.doReturn(true).when(flashcardRepository).add(Mockito.any());
+        Mockito.doReturn(flashcardList).when(flashcardRepository).addAll(Mockito.anyList());
 
         mvc.perform(MockMvcRequestBuilders.post("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"text\": \"example text\"}"))
+                        .content("{\"text\": \"example text\", \"direction\": \"LTR\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].word").value("word1"))
+                .andExpect(jsonPath("$[0].word").value("example"))
                 .andExpect(jsonPath("$[0].translation").value(""))
-                .andExpect(jsonPath("$[1].word").value("word2"))
+                .andExpect(jsonPath("$[1].word").value("text"))
                 .andExpect(jsonPath("$[1].translation").value(""));
     }
 
