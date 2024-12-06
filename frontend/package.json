@@ -7,11 +7,14 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "vitest",
+    "build-schema": "openapi-typescript http://localhost:8080/v3/api-docs -o ./src/schema/schema.d.ts"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "lucide-react": "^0.462.0",
+    "openapi-fetch": "^0.13.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -26,9 +29,12 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.12.0",
+    "msw": "^2.6.6",
+    "openapi-typescript": "^7.4.4",
     "postcss": "^8.4.49",
     "prettier": "3.4.2",
     "tailwindcss": "^3.4.15",
+    "typescript": "^5.7.2",
     "vite": "^6.0.0",
     "vitest": "^2.1.8"
   }

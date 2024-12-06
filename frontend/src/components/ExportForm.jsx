@@ -1,26 +1,28 @@
+import { useEffect, useState } from "react";
 import { X, ClipboardCopy, Download, Check } from "lucide-react";
 import { DialogPanel, useClose } from "@headlessui/react";
-import { useFlashcards } from "~/providers/FlashcardProvider";
 import IconButton from "~/components/IconButton";
 import Button from "~/components/Button";
-import { useEffect, useState } from "react";
+import { useFlashcards } from "../context/FlashcardContext";
 
 const ExportForm = () => {
   const close = useClose();
   const [copied, setCopied] = useState(false);
-  const { exportCSV, exportFlashcards } = useFlashcards();
+  const { exportedCSV, exportFlashcards } = useFlashcards();
 
   useEffect(() => {
     exportFlashcards();
-  }, [exportFlashcards]);
+    console.log("export")
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(exportCSV);
+    navigator.clipboard.writeText(exportedCSV);
     setCopied(true);
   };
 
   const downloadCSV = () => {
-    const blob = new Blob([exportCSV], { type: "text/csv" });
+    const blob = new Blob([exportedCSV], { type: "text/csv" });
 
     const url = URL.createObjectURL(blob);
 
@@ -47,7 +49,7 @@ const ExportForm = () => {
           <div>
             <div className="h-4"></div>
             <pre className="bg-slate-200 border rounded-xl p-4 max-h-60 overflow-y-scroll">
-              {exportCSV}
+              {exportedCSV}
             </pre>
             <div className="mt-6 flex justify-end gap-2">
               <Button

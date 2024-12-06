@@ -4,7 +4,7 @@ import IconButton from "~/components/IconButton";
 import Button from "~/components/Button";
 import FormField from "~/components/FormField";
 import Textarea from "~/components/Textarea";
-import { useFlashcards } from "~/providers/FlashcardProvider";
+import { useFlashcards } from "../context/FlashcardContext";
 
 const CreateFlashcardForm = () => {
   const close = useClose();
@@ -18,7 +18,6 @@ const CreateFlashcardForm = () => {
     const direction = "LTR";
 
     await addFlashcards({ text, direction });
-
     close();
   };
 
