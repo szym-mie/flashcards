@@ -195,55 +195,7 @@ apple,jabłko
 
 ### Pakiet: `service`
 
-#### 1. Klasa: `FlashcardService`
-
-#### Opis
-
-`FlashcardService` to serwis odpowiedzialny za zarządzanie operacjami na fiszkach. Obsługuje funkcje CRUD dla obiektów typu `Flashcard`.
-
-#### Adnotacje
-
-- `@Service`: Klasa jest komponentem Springa, który zarządza logiką biznesową.
-
-#### Pola
-
-1. **`flashcards`**
-    - Typ: `List<Flashcard>`
-    - Opis: Lista przechowująca wszystkie fiszki w aplikacji.
-
-#### Metody
-
-1. **`getAll()`**
-    - Zwraca wszystkie fiszki w systemie.
-    - Zwracany typ: `List<Flashcard>`.
-
-2. **`getByWord(String word)`**
-    - Wyszukuje fiszkę na podstawie podanego słowa.
-    - Zwracany typ: `Optional<Flashcard>`.
-
-3. **`getByWordOrThrow(String word)`**
-    - Wyszukuje fiszkę na podstawie słowa. Jeśli fiszka nie istnieje, rzuca wyjątek `NotFoundException`.
-    - Zwracany typ: `Flashcard`.
-
-4. **`add(String word)`**
-    - Dodaje nową fiszkę z podanym słowem. Jeśli fiszka już istnieje, usuwa ją przed dodaniem nowej wersji.
-    - Parametry:
-        - `word` – słowo do dodania.
-
-5. **`update(String word, String translation)`**
-    - Aktualizuje tłumaczenie dla istniejącej fiszki.
-    - Parametry:
-        - `word` – słowo, którego tłumaczenie ma być zaktualizowane.
-        - `translation` – nowe tłumaczenie.
-
-6. **`remove(String word)`**
-    - Usuwa fiszkę na podstawie podanego słowa.
-    - Parametry:
-        - `word` – słowo do usunięcia.
-
----
-
-#### 2. Klasa: `TextProcessorService`
+#### 1. Klasa: `TextProcessorService`
 
 #### Opis
 
@@ -253,19 +205,18 @@ apple,jabłko
 
 - `@Service`: Klasa jest komponentem Springa, który zarządza logiką biznesową.
 
+#### Pola
+
+1. **`wordPattern`**
+    - Typ: `Pattern`
+    - Opis: Szablon *regex* odpowiedzialny za rozdzielanie bloku tekstu na osobne słowa.
+
 #### Metody
 
-1. **`extractWords(String text, Direction direction)`**
-    - Ekstraktuje słowa z podanego tekstu, uwzględniając kierunek tłumaczenia.
+1. **`extractWords(String text)`**
+    - Rozdziela podany tekst na słowa
     - Parametry:
         - `text` – tekst wejściowy do analizy.
-        - `direction` – kierunek przetwarzania (np. RTL - od prawej do lewej).
-    - Zwracany typ: `List<String>`.
-
-2. **`extractWords(SentenceRequest sentenceRequest)`**
-    - Ekstraktuje słowa z obiektu `SentenceRequest`.
-    - Parametry:
-        - `sentenceRequest` – obiekt DTO zawierający tekst i kierunek tłumaczenia.
     - Zwracany typ: `List<String>`.
 
 #### Działanie
@@ -273,7 +224,6 @@ apple,jabłko
 - Usuwa znaki niebędące literami lub spacjami.
 - Konwertuje tekst na małe litery.
 - Dzieli tekst na słowa, ignorując puste elementy.
-- Dostosowuje kolejność słów w zależności od kierunku tłumaczenia (`Direction.RTL` lub `Direction.LTR`).
 
 ---
 
