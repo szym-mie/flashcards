@@ -143,7 +143,7 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 ```
 
 - **Przykładowa odpowiedź:**
-  Successfully processed!
+  - W wypadku sukcesu: 204 No Cotent
 
 #### 3. `PUT /api/flashcards`
 
@@ -160,7 +160,7 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 ```
 
 - **Przykładowa odpowiedź:**
-  Successfully translated!
+  - W wypadku sukcesu: 204 No Cotent
 
 #### 4. `DELETE /api/flashcards`
 
@@ -177,7 +177,7 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 ```
 
 - **Przykładowa odpowiedź:**
-  Successfully removed!
+    - W wypadku sukcesu: 204 No Cotent
 
 #### 5. `GET /api/flashcards/export`
 
