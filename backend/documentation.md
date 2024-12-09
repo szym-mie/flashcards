@@ -290,38 +290,18 @@ apple,jabłko
 
 #### Adnotacje
 
-- `@Getter`: Automatycznie generuje metody `get` dla pól klasy.
-- `@NotBlank`: Walidacja zapewniająca, że pole nie jest puste ani nie zawiera samych białych znaków.
+- `@Data`: Łączy funkcje adnotacji:
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.    
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
 
 #### Pola
 
 1. **`text`**
     - Typ: `String`
     - Opis: Tekst wprowadzany przez użytkownika do przetworzenia.
-    - Walidacja: `@NotBlank` – pole nie może być puste.
-
-2. **`direction`**
-    - Typ: `Direction`
-    - Opis: Kierunek tekstu.
-
----
-
-### 2. Klasa: `TranslationRequest`
-
-#### Opis
-
-`TranslationRequest` to klasa DTO reprezentująca żądanie użytkownika dotyczące aktualizacji tłumaczenia fiszki.
-
-#### Adnotacje
-
-- `@Getter`: Automatycznie generuje metody `get` dla pól klasy.
-- `@NotBlank`: Walidacja zapewniająca, że pole nie jest puste ani nie zawiera samych białych znaków.
-
-#### Pola
-
-1. **`text`**
-    - Typ: `String`
-    - Opis: Nowe tłumaczenie wprowadzane przez użytkownika.
     - Walidacja: `@NotBlank` – pole nie może być puste.
 
 ---
@@ -355,48 +335,6 @@ apple,jabłko
 - **Działanie:**
     - Ustawia ciało odpowiedzi na `"IO exception occurred"`.
     - Generuje odpowiedź z nagłówkami pustymi, kodem statusu `500 Internal Server Error` oraz informacjami o żądaniu.
-
----
-
-### Pakiet: `util`
-
-#### Klasa: `Direction`
-
-#### Opis
-`Direction` to typ wyliczeniowy (`enum`) reprezentujący kierunek przetwarzania tekstu. Wykorzystywany jest do określania, czy tekst powinien być przetwarzany od lewej do prawej (LTR - Left to Right) czy od prawej do lewej (RTL - Right to Left).
-
----
-
-#### Wartości Enum
-1. **`LTR`**
-    - Opis: Oznacza kierunek przetwarzania tekstu od lewej do prawej.
-    - Przykład: Angielski, Polski.
-
-2. **`RTL`**
-    - Opis: Oznacza kierunek przetwarzania tekstu od prawej do lewej.
-    - Przykład: Arabski, Hebrajski.
-
----
-
-### Pakiet: `exception`
-
-#### Klasa: `NotFoundException`
-
-#### Opis
-
-`NotFoundException` to klasa wyjątku, która reprezentuje sytuację, gdy poszukiwany zasób nie został znaleziony. Wyjątek ten jest obsługiwany przez Springa i automatycznie generuje odpowiedź HTTP z kodem statusu `404 Not Found`.
-
----
-
-#### Adnotacje
-
-- `@ResponseStatus(HttpStatus.NOT_FOUND)`: Ustawia status HTTP odpowiedzi na `404 Not Found`, gdy wyjątek zostanie rzucony.
-
----
-
-#### Dziedziczenie
-
-- Klasa `NotFoundException` dziedziczy z `RuntimeException`, co oznacza, że jest wyjątkiem typu unchecked (nie wymaga jawnej obsługi w kodzie).
 
 ---
 
