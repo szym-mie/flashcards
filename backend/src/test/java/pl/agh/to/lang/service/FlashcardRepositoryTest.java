@@ -112,7 +112,7 @@ class FlashcardRepositoryTest {
 
     @Test
     void testRemoveNonExistentFlashcard() {
-        assertDoesNotThrow(() -> flashcardRepository.removeByWord("nonexistent"));
+        assertThrows(NoSuchElementException.class, () -> flashcardRepository.removeByWord("nonexistent"));
     }
 }
 

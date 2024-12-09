@@ -55,22 +55,14 @@ class FlashcardControllerTests {
         Mockito.when(textProcessorService.extractWords(Mockito.any()))
                 .thenCallRealMethod();
 
-        List<Flashcard> flashcardList = List.of(
-                new Flashcard("example"),
-                new Flashcard("text")
-        );
-
-        Mockito.doReturn(true).when(flashcardRepository).add(Mockito.any());
-        Mockito.doReturn(flashcardList).when(flashcardRepository).addAll(Mockito.anyList());
+        Mockito.doNothing().when(flashcardRepository).add(Mockito.any());
 
         mvc.perform(MockMvcRequestBuilders.post("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"text\": \"example text\", \"direction\": \"LTR\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].word").value("example"))
-                .andExpect(jsonPath("$[0].translation").value(""))
-                .andExpect(jsonPath("$[1].word").value("text"))
-                .andExpect(jsonPath("$[1].translation").value(""));
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(flashcardRepository, Mockito.times(2)).add(Mockito.any());
     }
 
     @Test
@@ -80,9 +72,7 @@ class FlashcardControllerTests {
         mvc.perform(MockMvcRequestBuilders.put("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"word\": \"hello\", \"translation\": \"cześć\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.word").value("hello"))
-                .andExpect(jsonPath("$.translation").value("cześć"));
+                .andExpect(status().isNoContent());
 
         Mockito.verify(flashcardRepository).updateByWord("hello", "cześć");
     }
@@ -94,10 +84,7 @@ class FlashcardControllerTests {
         mvc.perform(MockMvcRequestBuilders.delete("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"word\": \"hello\", \"translation\": \"cześć\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.word").value("hello"))
-                .andExpect(jsonPath("$.translation").value("cześć"));
-
+                .andExpect(status().isNoContent());
         Mockito.verify(flashcardRepository).removeByWord("hello");
     }
 
