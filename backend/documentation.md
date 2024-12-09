@@ -227,6 +227,57 @@ apple,jabłko
 
 ---
 
+### Pakiet: `repository`
+
+#### Klasa: `FlashcardRepository`
+
+#### Opis
+
+`FlashcardRepository` odpowiada za przechowywanie fiszek oraz dostarcza metody do ich obsługi.
+
+#### Adnotacje
+
+- `@Repository`: Klasa jest komponentem springa odpowiedzialnym za perzystencję danych.
+
+#### Pola
+
+1. `flashcards`
+    - Typ: `Map<String, Flashcard>`
+    - Opis: Mapa zawierająca fiszki, kluczami są główne słowa z danych fiszek.
+
+#### Metody
+
+1. `getAll()`
+    - Zwracany typ: `List<Flashcard>`
+    - Opis: Zwraca listę wszystkich fiszek
+
+2. `findByWord(String word)`
+    - Zwracany typ: `Optional<Flashcard>`
+    - Argumenty:
+        - `String word`: Słowo, dla którego ma zostać zwrócona fiszka.
+    - Opis: Zwraca `Optional` z fiszką zawierającą dane słowo lub pusty `Optional` jeśli fiszka nie istnieje
+
+3. `findByWordOrThrow(String word)`
+    - Zwracany typ: `Flashcard`
+    - Argumenty:
+        - `String word`: Słowo, dla ktorego ma zostać zwrócona fiszka
+    - Opis: Działa analogicznie do `findByWord`, jednak rzuca wyjątek jeśli fiszka nie została znaleziona
+
+4. `updateByWord(String word, String translation)`
+    - Typ: `void`
+    - Argumenty:
+        - `String word`: Słowo, dla którego tłumaczenie ma zostać zmienione
+        - `String translation`: Nowe tłumaczenie
+    - Opis: Metoda zmienia tłumaczenie fiszki dla danego słowa. **UWAGA**, metoda korzysta z `findWordOrThrow`, rzuca wyjątek jeśli fiszka nie została znaleziona
+
+5. `removeByWord(String word)`
+    - Typ: `void`
+    - Argumenty:
+        - `String word`: Słowo, dla którego fiszka ma zostać usunięta.
+    - Opis: Usuwa fiszkę
+
+---
+
 ### Pakiet: `model`
 
 #### Klasa: `Flashcard`
