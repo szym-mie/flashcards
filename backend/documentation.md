@@ -133,7 +133,7 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 
 - **Opis:** Przetwarza zdanie wejściowe, ekstraktuje słowa i dodaje je jako nowe fiszki.
 - **Parametry wejściowe:** `SentenceRequest` w formacie JSON.
-- **Zwracany typ:** `ResponseEntity<String>`
+- **Zwracany typ:** `ResponseEntity<List<Flashcard>>`
 - **Przykład żądania:**
 
 ```json
@@ -145,29 +145,37 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 - **Przykładowa odpowiedź:**
   Successfully processed!
 
-#### 3. `PUT /api/flashcards/{word}`
+#### 3. `PUT /api/flashcards`
 
 - **Opis:** Aktualizuje tłumaczenie istniejącej fiszki.
-- **Parametry wejściowe:**
-    - Ścieżka: `word` – słowo do przetłumaczenia.
-    - Treść: `TranslationRequest` w formacie JSON.
-- **Zwracany typ:** `ResponseEntity<String>`
+- **Parametry wejściowe:** `Flashcard` w formacie JSON.
+- **Zwracany typ:** `ResponseEntity<Flashcard>`
 - **Przykład żądania:**
 
 ```json
 {
-    "text": "drzewo"
+    "word": "tree",
+    "translation": "drzewo"
 }
 ```
 
 - **Przykładowa odpowiedź:**
   Successfully translated!
 
-#### 4. `DELETE /api/flashcards/{word}`
+#### 4. `DELETE /api/flashcards`
 
 - **Opis:** Usuwa fiszkę na podstawie podanego słowa.
-- **Parametry wejściowe:** `word` – słowo do usunięcia.
-- **Zwracany typ:** `ResponseEntity<String>`
+- **Parametry wejściowe:** `Flashcard` w formacie JSON - fiszka do usunięcia.
+- **Zwracany typ:** `ResponseEntity<Flashcard>`
+- **Przykład żądania:**
+
+```json
+{
+    "word": "jabłko",
+    "translation": "" 
+}
+```
+
 - **Przykładowa odpowiedź:**
   Successfully removed!
 
