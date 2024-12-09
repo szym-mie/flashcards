@@ -239,9 +239,12 @@ apple,jabłko
 
 #### Adnotacje
 
-- `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
-- `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.
-- `@AllArgsConstructor`: Automatycznie generuje konstruktor z wszystkimi polami klasy.
+- `@Data`: Łączy funkcje adnotacji:
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.    
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
 
 ---
 
@@ -249,10 +252,14 @@ apple,jabłko
 
 1. **`word`**
     - Typ: `String`
+    - Adnotacje:
+        - `@NotBlank`: pole nie może być równe `null` ani nie może być pustym łańcuchem (składającym się tylko z białych znaków).
     - Opis: Słowo w języku obcym.
 
 2. **`translation`**
     - Typ: `String`
+    - Adnotacje:
+        - `@NotNull`: pole nie może być równe `null`
     - Opis: Tłumaczenie słowa wprowadzane przez użytkownika.
 
 ---
