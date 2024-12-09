@@ -9,10 +9,11 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler({ IOException.class })
+    @ExceptionHandler(IOException.class)
     protected ResponseEntity<Object> handleIOException(IOException exception, WebRequest request) {
         String body = "IO exception occurred";
         return this.handleExceptionInternal(
@@ -22,5 +23,10 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
                 HttpStatus.INTERNAL_SERVER_ERROR,
                 request
         );
+    }
+
+    @ExceptionHandler(NoSuchElementException.class)
+    protected ResponseEntity<String> handleNoSuchElementException(NoSuchElementException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 }

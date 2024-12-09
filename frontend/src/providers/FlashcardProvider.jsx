@@ -5,65 +5,31 @@ import FlashcardAPI from "../api/FlashcardAPI";
 const api = new FlashcardAPI("http://localhost:8080");
 
 const FlashcardProvider = ({ children }) => {
-  const [flashcardMap, setFlashcardMap] = useState(new Map());
+  const [flashcards, setFlashcards] = useState([]);
   const [exportedCSV, setExportedCSV] = useState("");
   
   useEffect(() => {
-    getAllFlashcards();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    revalidate();
   }, []);
 
-  const createMapFrom = (map) => new Map(map.entries());
-
-  const getAllFlashcards = async () => {
-    const newFlashcards = await api.getAll();
-    setFlashcardMap(() => {
-      const map = new Map();
-
-      for (const flashcard of newFlashcards) {
-        map.set(flashcard.word, flashcard);
-      }
-
-      return map;
-    });
-    console.log(flashcardMap);
+  const revalidate = async () => {
+    const flashcards = await api.getAll();
+    setFlashcards(flashcards)
   };
 
   const addFlashcards = async ({ text, direction }) => {
-    const newFlashcards = await api.add({ text, direction });
-    console.log(newFlashcards);
-    setFlashcardMap((prevMap) => {
-      const map = createMapFrom(prevMap);
-
-      for (const flashcard of newFlashcards) {
-        map.set(flashcard.word, flashcard);
-      }
-
-      console.log(prevMap);
-      return map;
-    });
+    await api.add({ text, direction });
+    revalidate()
   };
 
   const updateFlashcard = async (flashcard) => {
-    const newFlashcard = await api.update(flashcard);
-    setFlashcardMap((prevMap) => {
-      const map = createMapFrom(prevMap);
-
-      map.set(newFlashcard.word, newFlashcard);
-
-      return map;
-    });
+    await api.update(flashcard);
+    revalidate()
   };
 
   const removeFlashcard = async (flashcard) => {
     await api.remove(flashcard);
-    setFlashcardMap((prevMap) => {
-      const map = createMapFrom(prevMap);
-
-      map.delete(flashcard.word);
-
-      return map;
-    })
+    revalidate()
   };
 
   const exportFlashcards = async () => {
@@ -74,9 +40,8 @@ const FlashcardProvider = ({ children }) => {
   return (
     <FlashcardContext.Provider
       value={{
-        flashcardMap,
+        flashcards,
         exportedCSV,
-        getAllFlashcards,
         addFlashcards,
         updateFlashcard,
         removeFlashcard,

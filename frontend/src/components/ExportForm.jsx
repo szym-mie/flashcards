@@ -12,9 +12,7 @@ const ExportForm = () => {
 
   useEffect(() => {
     exportFlashcards();
-    console.log("export")
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [exportFlashcards]);
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(exportedCSV);

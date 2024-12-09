@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.agh.to.lang.model.Flashcard;
 import pl.agh.to.lang.dto.SentenceRequest;
+import pl.agh.to.lang.model.Flashcard;
 import pl.agh.to.lang.repository.FlashcardRepository;
 import pl.agh.to.lang.service.TextProcessorService;
 
@@ -38,28 +38,26 @@ public class FlashcardController {
 
     @PostMapping
     public ResponseEntity<List<Flashcard>> processSentence(@Valid @RequestBody SentenceRequest sentenceRequest) {
-        List<String> wordList = textProcessorService.extractWords(sentenceRequest);
-        List<Flashcard> flashcardList = wordList.stream()
+        List<String> wordList = textProcessorService.extractWords(sentenceRequest.getText());
+        wordList.stream()
                 .map(Flashcard::new)
-                .toList();
+                .forEach(flashcardRepository::add);
 
-        List<Flashcard> addedFlashcardList = flashcardRepository.addAll(flashcardList);
-
-        return ResponseEntity.ok(addedFlashcardList);
+        return ResponseEntity.noContent().build();
     }
 
     @PutMapping
-    public ResponseEntity<Flashcard> translateFlashcard(@RequestBody Flashcard flashcard) {
+    public ResponseEntity<Flashcard> translateFlashcard(@Valid @RequestBody Flashcard flashcard) {
         flashcardRepository.updateByWord(flashcard.getWord(), flashcard.getTranslation());
 
-        return ResponseEntity.ok(flashcard);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
-    public ResponseEntity<Flashcard> removeFlashcard(@RequestBody Flashcard flashcard) {
+    public ResponseEntity<Flashcard> removeFlashcard(@Valid @RequestBody Flashcard flashcard) {
         flashcardRepository.removeByWord(flashcard.getWord());
 
-        return ResponseEntity.ok(flashcard);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/export")

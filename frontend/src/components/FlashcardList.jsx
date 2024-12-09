@@ -6,17 +6,15 @@ import { useFlashcards } from "../context/FlashcardContext";
 import { useEffect } from "react";
 
 const FlashcardList = () => {
-  const { flashcardMap } = useFlashcards();
+  const { flashcards } = useFlashcards();
 
   const getTranslationText = (text) => (text !== "" ? text : <i>Pusty</i>);
 
-  const flashcardArray = [...flashcardMap.values()];
-
   useEffect(() => {
-    console.log(flashcardArray);
-  });
+    console.log(flashcards);
+  }, [flashcards]);
 
-  return flashcardArray.length === 0 ? (
+  return !flashcards.length ? (
       <>
         <header className="mb-8 text-center">
           <h1>Brak fiszek</h1>
@@ -39,11 +37,11 @@ const FlashcardList = () => {
         <header className="text-center">
           <h1>Twoje fiszki</h1>
           <p className="mt-2 muted">
-            Lista twoich wszystkich ({flashcardArray.length}) fiszek.
+            Lista twoich wszystkich ({flashcards.length}) fiszek.
           </p>
         </header>
         <div className="flex flex-wrap justify-center items-stretch gap-3 mt-8 w-full max-w-[800px]">
-          {flashcardArray.map(({ word, translation }) => (
+          {flashcards.map(({ word, translation }) => (
             <Breadcrumb
               key={word}
               mainText={word}

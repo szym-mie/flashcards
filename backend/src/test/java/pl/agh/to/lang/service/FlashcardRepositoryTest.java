@@ -13,24 +13,25 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class FlashcardRepositoryTest {
+class FlashcardRepositoryTest {
 
     private FlashcardRepository flashcardRepository;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         flashcardRepository = new FlashcardRepository();
     }
 
     @Test
-    public void testGetAllInitiallyEmpty() {
+    void testGetAllInitiallyEmpty() {
         List<Flashcard> flashcards = flashcardRepository.getAll();
         assertTrue(flashcards.isEmpty());
     }
 
     @Test
-    public void testAddFlashcard() {
+    void testAddFlashcard() {
         flashcardRepository.add(new Flashcard("hello"));
         List<Flashcard> flashcards = flashcardRepository.getAll();
 
@@ -40,7 +41,7 @@ public class FlashcardRepositoryTest {
     }
 
     @Test
-    public void testAddDuplicateFlashcard() {
+    void testAddDuplicateFlashcard() {
         flashcardRepository.add(new Flashcard("hello"));
         flashcardRepository.add(new Flashcard("hello"));
 
@@ -49,12 +50,17 @@ public class FlashcardRepositoryTest {
     }
 
     @Test
-    public void testAddBlankWord() {
-        assertThrows(IllegalArgumentException.class, () -> flashcardRepository.add(new Flashcard("   ")));
+    void testAddBlankWord() {
+        try {
+            new Flashcard("   ");
+            fail("Expected an IllegalArgumentException to be thrown");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    public void testFindByWord() {
+    void testFindByWord() {
         flashcardRepository.add(new Flashcard("world"));
         Optional<Flashcard> flashcard = flashcardRepository.findByWord("world");
 
@@ -63,13 +69,13 @@ public class FlashcardRepositoryTest {
     }
 
     @Test
-    public void testFindByWordNonExistent() {
+    void testFindByWordNonExistent() {
         Optional<Flashcard> flashcard = flashcardRepository.findByWord("nonexistent");
         assertTrue(flashcard.isEmpty());
     }
 
     @Test
-    public void testFindByWordOrThrow() {
+    void testFindByWordOrThrow() {
         flashcardRepository.add(new Flashcard("example"));
         Flashcard flashcard = flashcardRepository.findByWordOrThrow("example");
 
@@ -77,12 +83,12 @@ public class FlashcardRepositoryTest {
     }
 
     @Test
-    public void testFindByWordOrThrowNonExistent() {
+    void testFindByWordOrThrowNonExistent() {
         assertThrows(NoSuchElementException.class, () -> flashcardRepository.findByWordOrThrow("nonexistent"));
     }
 
     @Test
-    public void testUpdateByWordTranslation() {
+    void testUpdateByWordTranslation() {
         flashcardRepository.add(new Flashcard("hello"));
         flashcardRepository.updateByWord("hello", "cześć");
 
@@ -91,12 +97,12 @@ public class FlashcardRepositoryTest {
     }
 
     @Test
-    public void testUpdateByWordNonExistentFlashcard() {
+    void testUpdateByWordNonExistentFlashcard() {
         assertThrows(NoSuchElementException.class, () -> flashcardRepository.updateByWord("nonexistent", "missing"));
     }
 
     @Test
-    public void testRemoveFlashcard() {
+    void testRemoveFlashcard() {
         flashcardRepository.add(new Flashcard("delete"));
         flashcardRepository.removeByWord("delete");
 
@@ -105,7 +111,7 @@ public class FlashcardRepositoryTest {
     }
 
     @Test
-    public void testRemoveNonExistentFlashcard() {
+    void testRemoveNonExistentFlashcard() {
         assertDoesNotThrow(() -> flashcardRepository.removeByWord("nonexistent"));
     }
 }

@@ -3,10 +3,7 @@ package pl.agh.to.lang.repository;
 import org.springframework.stereotype.Repository;
 import pl.agh.to.lang.model.Flashcard;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -16,9 +13,7 @@ public class FlashcardRepository {
     private final Map<String, Flashcard> flashcards = new HashMap<>();
 
     public List<Flashcard> getAll() {
-        List<Flashcard> flashcardList = new LinkedList<>(flashcards.values());
-        // changes made in list would be reflected in the map
-        return Collections.unmodifiableList(flashcardList);
+        return flashcards.values().stream().toList();
     }
 
     public Optional<Flashcard> findByWord(String word) {
@@ -29,22 +24,10 @@ public class FlashcardRepository {
         return findByWord(word).orElseThrow();
     }
 
-    public boolean add(Flashcard flashcard) {
-        // we don't want to override previous translation
+    public void add(Flashcard flashcard) {
         String key = flashcard.getWord();
 
-        if (flashcards.get(key) == null) {
-            flashcards.put(key, flashcard);
-            return true;
-        }
-
-        return false;
-    }
-
-    public List<Flashcard> addAll(Collection<Flashcard> flashcardColl) {
-        return flashcardColl.stream()
-                .filter(this::add)
-                .toList();
+        flashcards.putIfAbsent(key, flashcard);
     }
 
     public void updateByWord(String word, String translation) {
@@ -53,6 +36,8 @@ public class FlashcardRepository {
     }
 
     public void removeByWord(String word) {
-        flashcards.remove(word);
+        // ensure that flashcard exist
+        Flashcard flashcard = findByWordOrThrow(word);
+        flashcards.remove(flashcard.getWord());
     }
 }

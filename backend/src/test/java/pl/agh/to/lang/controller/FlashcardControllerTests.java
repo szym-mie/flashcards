@@ -16,11 +16,13 @@ import pl.agh.to.lang.service.TextProcessorService;
 
 import java.util.List;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(FlashcardController.class)
-public class FlashcardControllerTests {
+class FlashcardControllerTests {
     @Autowired
     private MockMvc mvc;
 
@@ -31,7 +33,7 @@ public class FlashcardControllerTests {
     private FlashcardRepository flashcardRepository;
 
     @Test
-    public void testRetrieveAllFlashcards() throws Exception {
+    void testRetrieveAllFlashcards() throws Exception {
         Flashcard flashcard1 = new Flashcard("hello");
         flashcard1.setTranslation("cześć");
         Flashcard flashcard2 = new Flashcard("world");
@@ -49,7 +51,7 @@ public class FlashcardControllerTests {
     }
 
     @Test
-    public void testProcessSentence() throws Exception {
+    void testProcessSentence() throws Exception {
         Mockito.when(textProcessorService.extractWords(Mockito.any()))
                 .thenCallRealMethod();
 
@@ -72,7 +74,7 @@ public class FlashcardControllerTests {
     }
 
     @Test
-    public void testTranslateFlashcard() throws Exception {
+    void testTranslateFlashcard() throws Exception {
         Mockito.doNothing().when(flashcardRepository).updateByWord(Mockito.anyString(), Mockito.anyString());
 
         mvc.perform(MockMvcRequestBuilders.put("/api/flashcards")
@@ -86,7 +88,7 @@ public class FlashcardControllerTests {
     }
 
     @Test
-    public void testRemoveFlashcard() throws Exception {
+    void testRemoveFlashcard() throws Exception {
         Mockito.doNothing().when(flashcardRepository).removeByWord(Mockito.anyString());
 
         mvc.perform(MockMvcRequestBuilders.delete("/api/flashcards")
@@ -100,7 +102,7 @@ public class FlashcardControllerTests {
     }
 
     @Test
-    public void testCSVExport() throws Exception {
+    void testCSVExport() throws Exception {
         Flashcard flashcard1 = new Flashcard("Peter");
         flashcard1.setTranslation("Piotr");
         Flashcard flashcard2 = new Flashcard("John");
