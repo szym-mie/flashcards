@@ -25,8 +25,12 @@ class TextProcessorServiceTests {
         testString("a\nb\tc", List.of("a", "b", "c"), d);
         testString("abc    def\n  ghi", List.of("abc", "def", "ghi"), d);
         testString("abc\n\t  bed\n\tcet", List.of("abc", "bed", "cet"), d);
-        testString("123 !@# a b c", List.of("123", "!@#", "a", "b", "c"), d);
+        testString("123 !@# a b c", List.of("123", "a", "b", "c"), d);
         testString("Привет мир", List.of("Привет", "мир"), d);
+        testString("¡Oiga! ¿Sabe dónde está la parada?",
+                List.of("Oiga", "Sabe", "dónde", "está", "la", "parada"), d);
+        testString("\"Оценки результатов перестройки в обществе разнятся.\"",
+                List.of("Оценки", "результатов", "перестройки", "в", "обществе", "разнятся"), d);
     }
 
     @Test
