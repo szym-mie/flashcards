@@ -1,4 +1,4 @@
-package pl.agh.to.lang;
+package pl.agh.to.lang.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;

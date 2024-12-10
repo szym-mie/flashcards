@@ -1,14 +1,22 @@
 package pl.agh.to.lang.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.Data;
 
-@Getter
-@Setter
-@AllArgsConstructor
+@Data
 public class Flashcard {
-    private String word;
+    @NotBlank
+    private final String word;
 
-    private String translation;
+    @NotNull
+    private String translation = "";
+
+    public Flashcard(String word) {
+        if (word.isBlank()) {
+            throw new IllegalArgumentException("Blank word");
+        }
+
+        this.word = word;
+    }
 }

@@ -1,57 +1,56 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import * as api from "~/api/flashcards";
+import { useEffect, useState } from "react";
+import { FlashcardContext } from "../context/FlashcardContext";
+import FlashcardAPI from "../api/FlashcardAPI";
 
-const FlashcardContext = createContext(null);
+const api = new FlashcardAPI("http://localhost:8080");
 
 const FlashcardProvider = ({ children }) => {
   const [flashcards, setFlashcards] = useState([]);
-  const [exportCSV, setExportCSV] = useState(null);
-
+  const [exportedCSV, setExportedCSV] = useState("");
+  
   useEffect(() => {
     revalidate();
   }, []);
 
   const revalidate = async () => {
-    const flashcards = await api.fetchFlashcards();
-    setFlashcards(flashcards);
+    const flashcards = await api.getAll();
+    setFlashcards(flashcards)
   };
 
-  const addFlashcards = async (payload) => {
-    await api.addFlashcards(payload);
-    revalidate();
+  const addFlashcards = async ({ text, direction }) => {
+    await api.add({ text, direction });
+    revalidate()
   };
 
-  const updateFlashcard = async (word, payload) => {
-    await api.updateFlashcard(word, payload);
-    revalidate();
+  const updateFlashcard = async (flashcard) => {
+    await api.update(flashcard);
+    revalidate()
   };
 
-  const removeFlashcard = async (word) => {
-    await api.removeFlashcard(word);
-    revalidate();
+  const removeFlashcard = async (flashcard) => {
+    await api.remove(flashcard);
+    revalidate()
   };
 
   const exportFlashcards = async () => {
-    const exportCSV = await api.exportFlashcards();
-    setExportCSV(exportCSV);
+    const exportCSV = await api.export();
+    setExportedCSV(exportCSV);
   };
 
   return (
     <FlashcardContext.Provider
       value={{
         flashcards,
-        exportCSV,
+        exportedCSV,
         addFlashcards,
         updateFlashcard,
         removeFlashcard,
         exportFlashcards,
       }}
     >
-      {children({ flashcards })}
+      {children}
     </FlashcardContext.Provider>
   );
 };
-
-export const useFlashcards = () => useContext(FlashcardContext);
 
 export default FlashcardProvider;

@@ -56,6 +56,12 @@ Celem pierwszego etapu jest stworzenie aplikacji, która pozwoli na:
 
 ---
 
+## API - Swagger UI
+
+Wystarczy uruchomić serwer i 
+[przejść na stronę Swagger UI](http://localhost:8080/swagger-ui.html)
+
+
 ## Struktura projektu - backend
 
 Główne pakiety projektu to:
@@ -127,7 +133,7 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 
 - **Opis:** Przetwarza zdanie wejściowe, ekstraktuje słowa i dodaje je jako nowe fiszki.
 - **Parametry wejściowe:** `SentenceRequest` w formacie JSON.
-- **Zwracany typ:** `ResponseEntity<String>`
+- **Zwracany typ:** `ResponseEntity<List<Flashcard>>`
 - **Przykład żądania:**
 
 ```json
@@ -137,33 +143,41 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 ```
 
 - **Przykładowa odpowiedź:**
-  Successfully processed!
+  - W wypadku sukcesu: 204 No Cotent
 
-#### 3. `PUT /api/flashcards/{word}`
+#### 3. `PUT /api/flashcards`
 
 - **Opis:** Aktualizuje tłumaczenie istniejącej fiszki.
-- **Parametry wejściowe:**
-    - Ścieżka: `word` – słowo do przetłumaczenia.
-    - Treść: `TranslationRequest` w formacie JSON.
-- **Zwracany typ:** `ResponseEntity<String>`
+- **Parametry wejściowe:** `Flashcard` w formacie JSON.
+- **Zwracany typ:** `ResponseEntity<Flashcard>`
 - **Przykład żądania:**
 
 ```json
 {
-    "text": "drzewo"
+    "word": "tree",
+    "translation": "drzewo"
 }
 ```
 
 - **Przykładowa odpowiedź:**
-  Successfully translated!
+  - W wypadku sukcesu: 204 No Cotent
 
-#### 4. `DELETE /api/flashcards/{word}`
+#### 4. `DELETE /api/flashcards`
 
 - **Opis:** Usuwa fiszkę na podstawie podanego słowa.
-- **Parametry wejściowe:** `word` – słowo do usunięcia.
-- **Zwracany typ:** `ResponseEntity<String>`
+- **Parametry wejściowe:** `Flashcard` w formacie JSON - fiszka do usunięcia.
+- **Zwracany typ:** `ResponseEntity<Flashcard>`
+- **Przykład żądania:**
+
+```json
+{
+    "word": "jabłko",
+    "translation": "" 
+}
+```
+
 - **Przykładowa odpowiedź:**
-  Successfully removed!
+    - W wypadku sukcesu: 204 No Cotent
 
 #### 5. `GET /api/flashcards/export`
 
@@ -181,55 +195,7 @@ apple,jabłko
 
 ### Pakiet: `service`
 
-#### 1. Klasa: `FlashcardService`
-
-#### Opis
-
-`FlashcardService` to serwis odpowiedzialny za zarządzanie operacjami na fiszkach. Obsługuje funkcje CRUD dla obiektów typu `Flashcard`.
-
-#### Adnotacje
-
-- `@Service`: Klasa jest komponentem Springa, który zarządza logiką biznesową.
-
-#### Pola
-
-1. **`flashcards`**
-    - Typ: `List<Flashcard>`
-    - Opis: Lista przechowująca wszystkie fiszki w aplikacji.
-
-#### Metody
-
-1. **`getAll()`**
-    - Zwraca wszystkie fiszki w systemie.
-    - Zwracany typ: `List<Flashcard>`.
-
-2. **`getByWord(String word)`**
-    - Wyszukuje fiszkę na podstawie podanego słowa.
-    - Zwracany typ: `Optional<Flashcard>`.
-
-3. **`getByWordOrThrow(String word)`**
-    - Wyszukuje fiszkę na podstawie słowa. Jeśli fiszka nie istnieje, rzuca wyjątek `NotFoundException`.
-    - Zwracany typ: `Flashcard`.
-
-4. **`add(String word)`**
-    - Dodaje nową fiszkę z podanym słowem. Jeśli fiszka już istnieje, usuwa ją przed dodaniem nowej wersji.
-    - Parametry:
-        - `word` – słowo do dodania.
-
-5. **`update(String word, String translation)`**
-    - Aktualizuje tłumaczenie dla istniejącej fiszki.
-    - Parametry:
-        - `word` – słowo, którego tłumaczenie ma być zaktualizowane.
-        - `translation` – nowe tłumaczenie.
-
-6. **`remove(String word)`**
-    - Usuwa fiszkę na podstawie podanego słowa.
-    - Parametry:
-        - `word` – słowo do usunięcia.
-
----
-
-#### 2. Klasa: `TextProcessorService`
+#### 1. Klasa: `TextProcessorService`
 
 #### Opis
 
@@ -239,19 +205,18 @@ apple,jabłko
 
 - `@Service`: Klasa jest komponentem Springa, który zarządza logiką biznesową.
 
+#### Pola
+
+1. **`wordPattern`**
+    - Typ: `Pattern`
+    - Opis: Szablon *regex* odpowiedzialny za rozdzielanie bloku tekstu na osobne słowa.
+
 #### Metody
 
-1. **`extractWords(String text, Direction direction)`**
-    - Ekstraktuje słowa z podanego tekstu, uwzględniając kierunek tłumaczenia.
+1. **`extractWords(String text)`**
+    - Rozdziela podany tekst na słowa
     - Parametry:
         - `text` – tekst wejściowy do analizy.
-        - `direction` – kierunek przetwarzania (np. RTL - od prawej do lewej).
-    - Zwracany typ: `List<String>`.
-
-2. **`extractWords(SentenceRequest sentenceRequest)`**
-    - Ekstraktuje słowa z obiektu `SentenceRequest`.
-    - Parametry:
-        - `sentenceRequest` – obiekt DTO zawierający tekst i kierunek tłumaczenia.
     - Zwracany typ: `List<String>`.
 
 #### Działanie
@@ -259,7 +224,57 @@ apple,jabłko
 - Usuwa znaki niebędące literami lub spacjami.
 - Konwertuje tekst na małe litery.
 - Dzieli tekst na słowa, ignorując puste elementy.
-- Dostosowuje kolejność słów w zależności od kierunku tłumaczenia (`Direction.RTL` lub `Direction.LTR`).
+
+---
+
+### Pakiet: `repository`
+
+#### Klasa: `FlashcardRepository`
+
+#### Opis
+
+`FlashcardRepository` odpowiada za przechowywanie fiszek oraz dostarcza metody do ich obsługi.
+
+#### Adnotacje
+
+- `@Repository`: Klasa jest komponentem springa odpowiedzialnym za perzystencję danych.
+
+#### Pola
+
+1. `flashcards`
+    - Typ: `Map<String, Flashcard>`
+    - Opis: Mapa zawierająca fiszki, kluczami są główne słowa z danych fiszek.
+
+#### Metody
+
+1. `getAll()`
+    - Zwracany typ: `List<Flashcard>`
+    - Opis: Zwraca listę wszystkich fiszek
+
+2. `findByWord(String word)`
+    - Zwracany typ: `Optional<Flashcard>`
+    - Argumenty:
+        - `String word`: Słowo, dla którego ma zostać zwrócona fiszka.
+    - Opis: Zwraca `Optional` z fiszką zawierającą dane słowo lub pusty `Optional` jeśli fiszka nie istnieje
+
+3. `findByWordOrThrow(String word)`
+    - Zwracany typ: `Flashcard`
+    - Argumenty:
+        - `String word`: Słowo, dla ktorego ma zostać zwrócona fiszka
+    - Opis: Działa analogicznie do `findByWord`, jednak rzuca wyjątek jeśli fiszka nie została znaleziona
+
+4. `updateByWord(String word, String translation)`
+    - Typ: `void`
+    - Argumenty:
+        - `String word`: Słowo, dla którego tłumaczenie ma zostać zmienione
+        - `String translation`: Nowe tłumaczenie
+    - Opis: Metoda zmienia tłumaczenie fiszki dla danego słowa. **UWAGA**, metoda korzysta z `findWordOrThrow`, rzuca wyjątek jeśli fiszka nie została znaleziona
+
+5. `removeByWord(String word)`
+    - Typ: `void`
+    - Argumenty:
+        - `String word`: Słowo, dla którego fiszka ma zostać usunięta.
+    - Opis: Usuwa fiszkę
 
 ---
 
@@ -275,9 +290,12 @@ apple,jabłko
 
 #### Adnotacje
 
-- `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
-- `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.
-- `@AllArgsConstructor`: Automatycznie generuje konstruktor z wszystkimi polami klasy.
+- `@Data`: Łączy funkcje adnotacji:
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.    
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
 
 ---
 
@@ -285,10 +303,14 @@ apple,jabłko
 
 1. **`word`**
     - Typ: `String`
+    - Adnotacje:
+        - `@NotBlank`: pole nie może być równe `null` ani nie może być pustym łańcuchem (składającym się tylko z białych znaków).
     - Opis: Słowo w języku obcym.
 
 2. **`translation`**
     - Typ: `String`
+    - Adnotacje:
+        - `@NotNull`: pole nie może być równe `null`
     - Opis: Tłumaczenie słowa wprowadzane przez użytkownika.
 
 ---
@@ -319,38 +341,18 @@ apple,jabłko
 
 #### Adnotacje
 
-- `@Getter`: Automatycznie generuje metody `get` dla pól klasy.
-- `@NotBlank`: Walidacja zapewniająca, że pole nie jest puste ani nie zawiera samych białych znaków.
+- `@Data`: Łączy funkcje adnotacji:
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.    
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
 
 #### Pola
 
 1. **`text`**
     - Typ: `String`
     - Opis: Tekst wprowadzany przez użytkownika do przetworzenia.
-    - Walidacja: `@NotBlank` – pole nie może być puste.
-
-2. **`direction`**
-    - Typ: `Direction`
-    - Opis: Kierunek tekstu.
-
----
-
-### 2. Klasa: `TranslationRequest`
-
-#### Opis
-
-`TranslationRequest` to klasa DTO reprezentująca żądanie użytkownika dotyczące aktualizacji tłumaczenia fiszki.
-
-#### Adnotacje
-
-- `@Getter`: Automatycznie generuje metody `get` dla pól klasy.
-- `@NotBlank`: Walidacja zapewniająca, że pole nie jest puste ani nie zawiera samych białych znaków.
-
-#### Pola
-
-1. **`text`**
-    - Typ: `String`
-    - Opis: Nowe tłumaczenie wprowadzane przez użytkownika.
     - Walidacja: `@NotBlank` – pole nie może być puste.
 
 ---
@@ -384,48 +386,6 @@ apple,jabłko
 - **Działanie:**
     - Ustawia ciało odpowiedzi na `"IO exception occurred"`.
     - Generuje odpowiedź z nagłówkami pustymi, kodem statusu `500 Internal Server Error` oraz informacjami o żądaniu.
-
----
-
-### Pakiet: `util`
-
-#### Klasa: `Direction`
-
-#### Opis
-`Direction` to typ wyliczeniowy (`enum`) reprezentujący kierunek przetwarzania tekstu. Wykorzystywany jest do określania, czy tekst powinien być przetwarzany od lewej do prawej (LTR - Left to Right) czy od prawej do lewej (RTL - Right to Left).
-
----
-
-#### Wartości Enum
-1. **`LTR`**
-    - Opis: Oznacza kierunek przetwarzania tekstu od lewej do prawej.
-    - Przykład: Angielski, Polski.
-
-2. **`RTL`**
-    - Opis: Oznacza kierunek przetwarzania tekstu od prawej do lewej.
-    - Przykład: Arabski, Hebrajski.
-
----
-
-### Pakiet: `exception`
-
-#### Klasa: `NotFoundException`
-
-#### Opis
-
-`NotFoundException` to klasa wyjątku, która reprezentuje sytuację, gdy poszukiwany zasób nie został znaleziony. Wyjątek ten jest obsługiwany przez Springa i automatycznie generuje odpowiedź HTTP z kodem statusu `404 Not Found`.
-
----
-
-#### Adnotacje
-
-- `@ResponseStatus(HttpStatus.NOT_FOUND)`: Ustawia status HTTP odpowiedzi na `404 Not Found`, gdy wyjątek zostanie rzucony.
-
----
-
-#### Dziedziczenie
-
-- Klasa `NotFoundException` dziedziczy z `RuntimeException`, co oznacza, że jest wyjątkiem typu unchecked (nie wymaga jawnej obsługi w kodzie).
 
 ---
 

@@ -5,7 +5,7 @@ import Button from "~/components/Button";
 import Input from "~/components/Input";
 import FormField from "~/components/FormField";
 import Textarea from "~/components/Textarea";
-import { useFlashcards } from "~/providers/FlashcardProvider";
+import { useFlashcards } from "../context/FlashcardContext";
 
 const EditFlashcardForm = ({ word, translation }) => {
   const close = useClose();
@@ -17,14 +17,12 @@ const EditFlashcardForm = ({ word, translation }) => {
     const formData = new FormData(event.target);
     const translation = formData.get("translation");
 
-    await updateFlashcard(word, { text: translation });
-
+    await updateFlashcard({ word, translation });
     close();
   };
 
   const handleRemove = async () => {
-    await removeFlashcard(word);
-
+    await removeFlashcard({ word, translation });
     close();
   };
 

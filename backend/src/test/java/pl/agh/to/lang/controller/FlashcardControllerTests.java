@@ -9,16 +9,16 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.RequestBuilder;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.agh.to.lang.model.Flashcard;
-import pl.agh.to.lang.service.FlashcardService;
+import pl.agh.to.lang.repository.FlashcardRepository;
 import pl.agh.to.lang.service.TextProcessorService;
 
 import java.util.List;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(FlashcardController.class)
@@ -30,14 +30,17 @@ class FlashcardControllerTests {
     private TextProcessorService textProcessorService;
 
     @MockitoBean
-    private FlashcardService flashcardService;
+    private FlashcardRepository flashcardRepository;
 
     @Test
     void testRetrieveAllFlashcards() throws Exception {
-        Mockito.when(flashcardService.getAll()).thenReturn(List.of(
-                new Flashcard("hello", "cześć"),
-                new Flashcard("world", "świat")
-        ));
+        Flashcard flashcard1 = new Flashcard("hello");
+        flashcard1.setTranslation("cześć");
+        Flashcard flashcard2 = new Flashcard("world");
+        flashcard2.setTranslation("świat");
+
+        Mockito.when(flashcardRepository.getAll())
+                .thenReturn(List.of(flashcard1, flashcard2));
 
         mvc.perform(MockMvcRequestBuilders.get("/api/flashcards"))
                 .andExpect(status().isOk())
@@ -49,56 +52,55 @@ class FlashcardControllerTests {
 
     @Test
     void testProcessSentence() throws Exception {
-        Mockito.when(textProcessorService.extractWords(Mockito.any())).thenReturn(List.of("word1", "word2"));
-        Mockito.doNothing().when(flashcardService).add(Mockito.any());
+        Mockito.when(textProcessorService.extractWords(Mockito.any()))
+                .thenCallRealMethod();
+
+        Mockito.doNothing().when(flashcardRepository).add(Mockito.any());
 
         mvc.perform(MockMvcRequestBuilders.post("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"text\": \"example text\"}"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Successfully processed!"));
+                        .content("{\"text\": \"example text\", \"direction\": \"LTR\"}"))
+                .andExpect(status().isNoContent());
 
-        Mockito.verify(flashcardService, Mockito.times(2)).add(Mockito.anyString());
+        Mockito.verify(flashcardRepository, Mockito.times(2)).add(Mockito.any());
     }
 
     @Test
     void testTranslateFlashcard() throws Exception {
-        Mockito.doNothing().when(flashcardService).update(Mockito.anyString(), Mockito.anyString());
+        Mockito.doNothing().when(flashcardRepository).updateByWord(Mockito.anyString(), Mockito.anyString());
 
-        mvc.perform(MockMvcRequestBuilders.put("/api/flashcards/hello")
+        mvc.perform(MockMvcRequestBuilders.put("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"text\": \"cześć\"}"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Successfully translated!"));
+                        .content("{\"word\": \"hello\", \"translation\": \"cześć\"}"))
+                .andExpect(status().isNoContent());
 
-        Mockito.verify(flashcardService).update("hello", "cześć");
+        Mockito.verify(flashcardRepository).updateByWord("hello", "cześć");
     }
 
     @Test
     void testRemoveFlashcard() throws Exception {
-        Mockito.doNothing().when(flashcardService).remove(Mockito.anyString());
+        Mockito.doNothing().when(flashcardRepository).removeByWord(Mockito.anyString());
 
-        mvc.perform(MockMvcRequestBuilders.delete("/api/flashcards/hello"))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Successfully removed!"));
-
-        Mockito.verify(flashcardService).remove("hello");
-    }
-
-    private ResultActions request(String url, String contentType) throws Exception {
-        RequestBuilder requestBuilder = MockMvcRequestBuilders.get(url)
-                .contentType(contentType);
-        return mvc.perform(requestBuilder);
+        mvc.perform(MockMvcRequestBuilders.delete("/api/flashcards")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"word\": \"hello\", \"translation\": \"cześć\"}"))
+                .andExpect(status().isNoContent());
+        Mockito.verify(flashcardRepository).removeByWord("hello");
     }
 
     @Test
     void testCSVExport() throws Exception {
-        Mockito.when(flashcardService.getAll()).thenReturn(List.of(
-                new Flashcard("Peter", "Piotr")
-        ));
+        Flashcard flashcard1 = new Flashcard("Peter");
+        flashcard1.setTranslation("Piotr");
+        Flashcard flashcard2 = new Flashcard("John");
+        flashcard2.setTranslation("Jan");
 
-        request("/api/flashcards/export", "text/csv")
+        Mockito.when(flashcardRepository.getAll())
+                .thenReturn(List.of(flashcard1, flashcard2));
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/flashcards/export")
+                        .contentType("text/csv"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("word,translation\nPeter,Piotr\n"));
+                .andExpect(content().string("word,translation\nPeter,Piotr\nJohn,Jan\n"));
     }
 }
