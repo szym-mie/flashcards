@@ -46,7 +46,16 @@ ani złych praktyk.
   * itp.
 
 ## Kamień milowy 2
-Funkcjonalności będą związane m.in. z warstwą persystencji, obsługą morfologii.
+W tym etapie dodajemy funkcjonalności związane z morfologią oraz fonetyką słów. Ponadto stworzymy podstawową warstwę persystencji. 
+
+### Wymagania funkcjonalne:
+* Podział słów na części mowy.
+* Formy fleksyjne.
+* Wyświetlanie tekstu w interlinii.
+* (Transliteracja) i transkrypcja.
+* Wiele tłumaczeń jednego słowa.
+* Eksportowanie tego do csv w kolejnych kolumnach.
+* Persystencja form słownikowych.
 
 ## Kamień milowy 3
 Funkcjonalności będą skoncentrowane na syntaksie zdań.
