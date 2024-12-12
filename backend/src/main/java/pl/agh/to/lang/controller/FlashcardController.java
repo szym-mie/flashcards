@@ -41,21 +41,21 @@ public class FlashcardController {
         List<String> wordList = textProcessorService.extractWords(sentenceRequest.getText());
         wordList.stream()
                 .map(Flashcard::new)
-                .forEach(flashcardRepository::add);
+                .forEach(flashcardRepository::save);
 
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping
-    public ResponseEntity<Flashcard> translateFlashcard(@Valid @RequestBody Flashcard flashcard) {
-        flashcardRepository.updateByWord(flashcard.getWord(), flashcard.getTranslation());
+    public ResponseEntity<Flashcard> updateFlashcard(@Valid @RequestBody Flashcard flashcard) {
+        flashcardRepository.update(flashcard);
 
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
     public ResponseEntity<Flashcard> removeFlashcard(@Valid @RequestBody Flashcard flashcard) {
-        flashcardRepository.removeByWord(flashcard.getWord());
+        flashcardRepository.remove(flashcard);
 
         return ResponseEntity.noContent().build();
     }

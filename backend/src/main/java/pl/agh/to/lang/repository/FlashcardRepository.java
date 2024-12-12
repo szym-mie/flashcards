@@ -24,20 +24,25 @@ public class FlashcardRepository {
         return findByWord(word).orElseThrow();
     }
 
-    public void add(Flashcard flashcard) {
+    public void save(Flashcard flashcard) {
         String key = flashcard.getWord();
 
         flashcards.putIfAbsent(key, flashcard);
     }
 
-    public void updateByWord(String word, String translation) {
-        Flashcard flashcard = findByWordOrThrow(word);
-        flashcard.setTranslation(translation);
+    public void update(Flashcard flashcard) {
+        Flashcard foundFlashcard = findByWordOrThrow(flashcard.getWord());
+
+        foundFlashcard.setLemma(flashcard.getLemma());
+        foundFlashcard.setPartOfSpeech(flashcard.getPartOfSpeech());
+        foundFlashcard.setInflections(flashcard.getInflections());
     }
 
-    public void removeByWord(String word) {
+    public void remove(Flashcard flashcard) {
         // ensure that flashcard exist
-        Flashcard flashcard = findByWordOrThrow(word);
-        flashcards.remove(flashcard.getWord());
+        String word = flashcard.getWord();
+        findByWordOrThrow(word);
+
+        flashcards.remove(word);
     }
 }
