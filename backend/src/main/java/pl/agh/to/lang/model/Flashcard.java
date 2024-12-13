@@ -4,28 +4,28 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Data
 public class Flashcard {
     @NotBlank
     private final String word;
 
     @NotBlank
-    private String lemma;
+    private String lemma; // base form
+
+    @NotNull
+    private String translation = "";
 
     @NotNull
     private String partOfSpeech = "";
 
     @NotNull
-    private List<String> inflections = new ArrayList<>();
+    private String transcription = "";
+
 
     public Flashcard(String word) {
         if (word.isBlank()) {
             throw new IllegalArgumentException("Blank word");
         }
-
         this.word = word;
     }
 }

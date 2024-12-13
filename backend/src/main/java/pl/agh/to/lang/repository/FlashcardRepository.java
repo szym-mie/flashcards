@@ -35,7 +35,7 @@ public class FlashcardRepository {
 
         foundFlashcard.setLemma(flashcard.getLemma());
         foundFlashcard.setPartOfSpeech(flashcard.getPartOfSpeech());
-        foundFlashcard.setInflections(flashcard.getInflections());
+        foundFlashcard.setTranscription(flashcard.getTranscription());
     }
 
     public void remove(Flashcard flashcard) {
