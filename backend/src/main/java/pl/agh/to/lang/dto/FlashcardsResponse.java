@@ -1,10 +1,16 @@
 package pl.agh.to.lang.dto;
 
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import pl.agh.to.lang.model.Flashcard;
+import pl.agh.to.lang.model.Sentence;
 
-@Data
-public class SentenceRequest {
-    @NotBlank
-    private String text;
+import java.util.List;
+
+@AllArgsConstructor
+@Getter
+public class FlashcardsResponse {
+    private final Sentence sentence;
+
+    private final List<Flashcard> flashcards;
 }

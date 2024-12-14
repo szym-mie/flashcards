@@ -34,6 +34,7 @@ public class FlashcardRepository {
         Flashcard foundFlashcard = findByWordOrThrow(flashcard.getWord());
 
         foundFlashcard.setLemma(flashcard.getLemma());
+        foundFlashcard.setTranslation(flashcard.getTranslation());
         foundFlashcard.setPartOfSpeech(flashcard.getPartOfSpeech());
         foundFlashcard.setTranscription(flashcard.getTranscription());
     }

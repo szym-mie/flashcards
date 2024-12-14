@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.agh.to.lang.dto.SentenceRequest;
+import pl.agh.to.lang.dto.FlashcardsResponse;
 import pl.agh.to.lang.model.Flashcard;
+import pl.agh.to.lang.model.Sentence;
 import pl.agh.to.lang.repository.FlashcardRepository;
 import pl.agh.to.lang.service.TextProcessorService;
 
@@ -25,23 +26,28 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/flashcards")
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FlashcardController {
     private final TextProcessorService textProcessorService;
 
     private final FlashcardRepository flashcardRepository;
 
+    private Sentence sentence;
+
     @GetMapping
-    public ResponseEntity<List<Flashcard>> retrieveAllFlashcards() {
-        return ResponseEntity.ok(flashcardRepository.getAll());
+    public ResponseEntity<FlashcardsResponse> retrieveAllFlashcards() {
+        return ResponseEntity.ok(new FlashcardsResponse(sentence, flashcardRepository.getAll()));
     }
 
     @PostMapping
-    public ResponseEntity<List<Flashcard>> processSentence(@Valid @RequestBody SentenceRequest sentenceRequest) {
-        List<String> wordList = textProcessorService.extractWords(sentenceRequest.getText());
+    public ResponseEntity<List<Flashcard>> processSentence(@Valid @RequestBody Sentence sentence) {
+        this.sentence = sentence;
+
+        List<String> wordList = textProcessorService.extractWords(sentence.getText());
         wordList.stream()
                 .map(Flashcard::new)
                 .forEach(flashcardRepository::save);
+
 
         return ResponseEntity.noContent().build();
     }
@@ -64,7 +70,10 @@ public class FlashcardController {
     public ResponseEntity<String> exportToCSV() throws IOException {
         CsvSchema schema = CsvSchema.builder()
                 .addColumn("word")
+                .addColumn("lemma")
                 .addColumn("translation")
+                .addColumn("partOfSpeech")
+                .addColumn("transcription")
                 .build().withHeader();
 
         CsvMapper mapper = new CsvMapper();

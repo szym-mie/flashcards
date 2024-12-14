@@ -18,17 +18,20 @@ public class LanguageService {
         return languageRepository.findAll();
     }
 
-    public Language create(Language language) throws ResourceAlreadyExistsException {
+    public Language create(Language language) {
+        language.setId(language.getId().toLowerCase());
+
         if (languageRepository.existsById(language.getId())) {
             throw new ResourceAlreadyExistsException("Language already exists (use PUT to update)");
         }
-        language.setId(language.getId().toLowerCase());
         languageRepository.save(language);
+
         return language;
     }
 
     public void update(Language language) {
         language.setId(language.getId().toLowerCase());
+
         if (!languageRepository.existsById(language.getId())) {
             throw new NoSuchElementException("Language does not exist (use POST to create)");
         }
