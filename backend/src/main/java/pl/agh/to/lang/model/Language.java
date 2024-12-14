@@ -3,10 +3,12 @@ package pl.agh.to.lang.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @Entity
+@AllArgsConstructor
 public class Language {
     @Id
     @NotBlank
@@ -14,4 +16,6 @@ public class Language {
 
     @NotBlank
     private String name;
+
+    public Language() {}
 }

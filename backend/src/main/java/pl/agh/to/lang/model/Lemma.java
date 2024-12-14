@@ -7,11 +7,13 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @Entity
 @IdClass(LemmaId.class)
+@AllArgsConstructor
 public class Lemma {
     @Id
     @NotBlank
@@ -24,4 +26,7 @@ public class Lemma {
     @ManyToOne
     @JoinColumn(name = "language_id")
     private Language language;
+
+    public Lemma() {
+    }
 }
