@@ -21,7 +21,10 @@ public class LemmaController {
     private final LemmaRepository lemmaRepository;
 
     @GetMapping("/{name}")
-    public ResponseEntity<Lemma> retrieveLemmaByNameAndLanguage(@PathVariable(value = "name") String name, @RequestParam Language language) {
+    public ResponseEntity<Lemma> retrieveLemmaByNameAndLanguage(@PathVariable(value = "name") String name,
+                                                                @RequestParam(value = "language.id") String languageId,
+                                                                @RequestParam(value = "language.name") String languageName) {
+        Language language = new Language(languageId, languageName);
         Lemma lemma = lemmaRepository.findOneByNameAndLanguage(name, language).orElseThrow();
 
         return ResponseEntity.ok(lemma);

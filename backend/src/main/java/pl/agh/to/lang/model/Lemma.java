@@ -6,11 +6,15 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @Entity
 @IdClass(LemmaId.class)
+@AllArgsConstructor
+@NoArgsConstructor
 public class Lemma {
     @Id
     @NotBlank

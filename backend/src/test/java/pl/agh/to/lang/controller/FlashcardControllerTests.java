@@ -11,9 +11,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.agh.to.lang.model.Flashcard;
+import pl.agh.to.lang.model.Sentence;
 import pl.agh.to.lang.repository.FlashcardRepository;
 import pl.agh.to.lang.service.TextProcessorService;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -32,75 +34,87 @@ class FlashcardControllerTests {
     @MockitoBean
     private FlashcardRepository flashcardRepository;
 
-//    @Test
-//    void testRetrieveAllFlashcards() throws Exception {
-//        Flashcard flashcard1 = new Flashcard("hello");
-//        flashcard1.setTranslation("cześć");
-//        Flashcard flashcard2 = new Flashcard("world");
-//        flashcard2.setTranslation("świat");
-//
-//        Mockito.when(flashcardRepository.getAll())
-//                .thenReturn(List.of(flashcard1, flashcard2));
-//
-//        mvc.perform(MockMvcRequestBuilders.get("/api/flashcards"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$[0].word").value("hello"))
-//                .andExpect(jsonPath("$[0].translation").value("cześć"))
-//                .andExpect(jsonPath("$[1].word").value("world"))
-//                .andExpect(jsonPath("$[1].translation").value("świat"));
-//    }
+    @Autowired
+    private FlashcardController flashcardController;
+
+    @Test
+    void testRetrieveAllFlashcards() throws Exception {
+        Flashcard flashcard1 = new Flashcard("hello");
+        flashcard1.setTranslation("cześć");
+        Flashcard flashcard2 = new Flashcard("world");
+        flashcard2.setTranslation("świat");
+
+        Sentence sentence = new Sentence("Example sentence", null);
+
+        Mockito.when(flashcardRepository.getAll()).thenReturn(List.of(flashcard1, flashcard2));
+
+        Field sentenceField = FlashcardController.class.getDeclaredField("sentence");
+        sentenceField.setAccessible(true);
+        sentenceField.set(flashcardController, sentence);
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/flashcards"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.sentence.text").value("Example sentence"))
+                .andExpect(jsonPath("$.flashcards[0].word").value("hello"))
+                .andExpect(jsonPath("$.flashcards[0].translation").value("cześć"))
+                .andExpect(jsonPath("$.flashcards[1].word").value("world"))
+                .andExpect(jsonPath("$.flashcards[1].translation").value("świat"));
+    }
 
     @Test
     void testProcessSentence() throws Exception {
-        Mockito.when(textProcessorService.extractWords(Mockito.any()))
-                .thenCallRealMethod();
 
+        Mockito.when(textProcessorService.extractWords(Mockito.any())).thenReturn(List.of("example", "text"));
         Mockito.doNothing().when(flashcardRepository).save(Mockito.any());
 
         mvc.perform(MockMvcRequestBuilders.post("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"text\": \"example text\", \"direction\": \"LTR\"}"))
+                        .content("{\"text\": \"example text\", \"language\": {\"id\": \"en\", \"name\": \"English\"}}"))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(flashcardRepository, Mockito.times(2)).save(Mockito.any());
     }
 
-//    @Test
-//    void testTranslateFlashcard() throws Exception {
-//        Mockito.doNothing().when(flashcardRepository).updateByWord(Mockito.anyString(), Mockito.anyString());
-//
-//        mvc.perform(MockMvcRequestBuilders.put("/api/flashcards")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content("{\"word\": \"hello\", \"translation\": \"cześć\"}"))
-//                .andExpect(status().isNoContent());
-//
-//        Mockito.verify(flashcardRepository).updateByWord("hello", "cześć");
-//    }
-//
-//    @Test
-//    void testRemoveFlashcard() throws Exception {
-//        Mockito.doNothing().when(flashcardRepository).removeByWord(Mockito.anyString());
-//
-//        mvc.perform(MockMvcRequestBuilders.delete("/api/flashcards")
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content("{\"word\": \"hello\", \"translation\": \"cześć\"}"))
-//                .andExpect(status().isNoContent());
-//        Mockito.verify(flashcardRepository).removeByWord("hello");
-//    }
 
-//    @Test
-//    void testCSVExport() throws Exception {
-//        Flashcard flashcard1 = new Flashcard("Peter");
-//        flashcard1.setTranslation("Piotr");
-//        Flashcard flashcard2 = new Flashcard("John");
-//        flashcard2.setTranslation("Jan");
-//
-//        Mockito.when(flashcardRepository.getAll())
-//                .thenReturn(List.of(flashcard1, flashcard2));
-//
-//        mvc.perform(MockMvcRequestBuilders.get("/api/flashcards/export")
-//                        .contentType("text/csv"))
-//                .andExpect(status().isOk())
-//                .andExpect(content().string("word,translation\nPeter,Piotr\nJohn,Jan\n"));
-//    }
+    @Test
+    void testTranslateFlashcard() throws Exception {
+        Mockito.doNothing().when(flashcardRepository).update(Mockito.any());
+
+        mvc.perform(MockMvcRequestBuilders.put("/api/flashcards")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"word\": \"hello\", \"lemma\": \"lemma-example\", \"translation\": \"cześć\", \"partOfSpeech\": \"noun\", \"transcription\": \"he-lo\"}"))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(flashcardRepository).update(Mockito.any());
+    }
+
+    @Test
+    void testRemoveFlashcard() throws Exception {
+        Mockito.doNothing().when(flashcardRepository).remove(Mockito.any());
+
+        mvc.perform(MockMvcRequestBuilders.delete("/api/flashcards")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"word\": \"hello\", \"lemma\": \"lemma-example\", \"translation\": \"cześć\", \"partOfSpeech\": \"noun\", \"transcription\": \"he-lo\"}"))
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(flashcardRepository).remove(Mockito.any());
+    }
+
+    @Test
+    void testCSVExport() throws Exception {
+        Flashcard flashcard1 = new Flashcard("Peter");
+        flashcard1.setTranslation("Piotr");
+        Flashcard flashcard2 = new Flashcard("John");
+        flashcard2.setTranslation("Jan");
+
+        Mockito.when(flashcardRepository.getAll()).thenReturn(List.of(flashcard1, flashcard2));
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/flashcards/export")
+                        .accept("text/csv"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(
+                        "word,lemma,translation,partOfSpeech,transcription\nPeter,,Piotr,,\nJohn,,Jan,,\n"
+                ));
+    }
+
 }

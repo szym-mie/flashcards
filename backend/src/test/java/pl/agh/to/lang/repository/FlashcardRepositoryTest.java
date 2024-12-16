@@ -1,19 +1,16 @@
-package pl.agh.to.lang.service;
+package pl.agh.to.lang.repository;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.agh.to.lang.model.Flashcard;
-import pl.agh.to.lang.repository.FlashcardRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 class FlashcardRepositoryTest {
 
@@ -51,12 +48,8 @@ class FlashcardRepositoryTest {
 
     @Test
     void testAddBlankWord() {
-        try {
-            new Flashcard("   ");
-            fail("Expected an IllegalArgumentException to be thrown");
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-        }
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Flashcard("   "));
+        assertEquals("Blank word", exception.getMessage());
     }
 
     @Test
@@ -87,32 +80,54 @@ class FlashcardRepositoryTest {
         assertThrows(NoSuchElementException.class, () -> flashcardRepository.findByWordOrThrow("nonexistent"));
     }
 
-//    @Test
-//    void testUpdateByWordTranslation() {
-//        flashcardRepository.save(new Flashcard("hello"));
-//        flashcardRepository.updateByWord("hello", "cześć");
-//
-//        Flashcard flashcard = flashcardRepository.findByWordOrThrow("hello");
-//        assertEquals("cześć", flashcard.getTranslation());
-//    }
+    @Test
+    void testUpdateFlashcard() {
+        Flashcard flashcard = new Flashcard("hello");
+        flashcard.setTranslation("cześć");
+        flashcard.setLemma("hello");
+        flashcard.setPartOfSpeech("noun");
+        flashcard.setTranscription("he-lo");
 
-//    @Test
-//    void testUpdateByWordNonExistentFlashcard() {
-//        assertThrows(NoSuchElementException.class, () -> flashcardRepository.updateByWord("nonexistent", "missing"));
-//    }
-//
-//    @Test
-//    void testRemoveFlashcard() {
-//        flashcardRepository.add(new Flashcard("delete"));
-//        flashcardRepository.removeByWord("delete");
-//
-//        List<Flashcard> flashcards = flashcardRepository.getAll();
-//        assertTrue(flashcards.isEmpty());
-//    }
+        flashcardRepository.save(flashcard);
 
-//    @Test
-//    void testRemoveNonExistentFlashcard() {
-//        assertThrows(NoSuchElementException.class, () -> flashcardRepository.removeByWord("nonexistent"));
-//    }
+        Flashcard updatedFlashcard = new Flashcard("hello");
+        updatedFlashcard.setTranslation("hi");
+        updatedFlashcard.setLemma("greet");
+        updatedFlashcard.setPartOfSpeech("verb");
+        updatedFlashcard.setTranscription("hɪ");
+
+        flashcardRepository.update(updatedFlashcard);
+
+        Flashcard result = flashcardRepository.findByWordOrThrow("hello");
+
+        assertEquals("hi", result.getTranslation());
+        assertEquals("greet", result.getLemma());
+        assertEquals("verb", result.getPartOfSpeech());
+        assertEquals("hɪ", result.getTranscription());
+    }
+
+    @Test
+    void testUpdateNonExistentFlashcard() {
+        Flashcard flashcard = new Flashcard("nonexistent");
+        assertThrows(NoSuchElementException.class, () -> flashcardRepository.update(flashcard));
+    }
+
+    @Test
+    void testRemoveFlashcard() {
+        Flashcard flashcard = new Flashcard("delete");
+        flashcardRepository.save(flashcard);
+
+        flashcardRepository.remove(flashcard);
+
+        List<Flashcard> flashcards = flashcardRepository.getAll();
+        assertTrue(flashcards.isEmpty());
+    }
+
+    @Test
+    void testRemoveNonExistentFlashcard() {
+        Flashcard flashcard = new Flashcard("nonexistent");
+        assertThrows(NoSuchElementException.class, () -> flashcardRepository.remove(flashcard));
+    }
+
 }
 
