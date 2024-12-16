@@ -3,10 +3,10 @@ import API from "./API";
 class FlashcardAPI extends API {
   async getAll() {
     return await this.request("GET:/api/flashcards");
-  } 
+  }
 
-  async add({ text, direction }) {
-    return await this.request("POST:/api/flashcards", { text, direction });
+  async add(payload) {
+    return await this.request("POST:/api/flashcards", payload);
   }
 
   async update(flashcard) {

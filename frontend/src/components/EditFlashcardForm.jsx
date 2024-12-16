@@ -4,26 +4,60 @@ import IconButton from "~/components/IconButton";
 import Button from "~/components/Button";
 import Input from "~/components/Input";
 import FormField from "~/components/FormField";
-import Textarea from "~/components/Textarea";
 import { useFlashcards } from "../context/FlashcardContext";
+import { useState } from "react";
 
-const EditFlashcardForm = ({ word, translation }) => {
+const EditFlashcardForm = ({
+  word,
+  lemma,
+  translation: _translation,
+  partOfSpeech,
+  transcription,
+}) => {
   const close = useClose();
-  const { updateFlashcard, removeFlashcard } = useFlashcards();
+  const [translation, setTranslation] = useState(_translation);
+  const { sentence, updateFlashcard, removeFlashcard, getLemma, upsertLemma } =
+    useFlashcards();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     const formData = new FormData(event.target);
+    const lemma = formData.get("lemma");
     const translation = formData.get("translation");
+    const partOfSpeech = formData.get("partOfSpeech");
+    const transcription = formData.get("transcription");
 
-    await updateFlashcard({ word, translation });
+    await updateFlashcard({
+      word,
+      lemma,
+      translation,
+      partOfSpeech,
+      transcription,
+    });
+    await upsertLemma({
+      name: lemma,
+      translation,
+      language: sentence.language,
+    });
+
     close();
   };
 
   const handleRemove = async () => {
     await removeFlashcard({ word, translation });
     close();
+  };
+
+  const handleLemmaChange = async (event) => {
+    const lemma = await getLemma({
+      name: event.target.value,
+      language: sentence.language,
+    });
+
+    if (lemma.translation) {
+      setTranslation(lemma.translation);
+    }
   };
 
   return (
@@ -41,8 +75,25 @@ const EditFlashcardForm = ({ word, translation }) => {
             <FormField label="Słowo" className="mt-6">
               <Input name="word" defaultValue={word} disabled />
             </FormField>
+            <FormField label="Forma bazowa" className="mt-4">
+              <Input
+                name="lemma"
+                defaultValue={lemma}
+                onChange={handleLemmaChange}
+              />
+            </FormField>
             <FormField label="Tłumaczenie" className="mt-4">
-              <Textarea name="translation" defaultValue={translation} />
+              <Input
+                name="translation"
+                value={translation}
+                onChange={(event) => setTranslation(event.target.value)}
+              />
+            </FormField>
+            <FormField label="Część mowy" className="mt-4">
+              <Input name="partOfSpeech" defaultValue={partOfSpeech} />
+            </FormField>
+            <FormField label="Transkrypcja" className="mt-4">
+              <Input name="transcription" defaultValue={transcription} />
             </FormField>
             <div className="mt-6 flex justify-end gap-2">
               <Button text="Anuluj" variant="secondary" onClick={close} />
