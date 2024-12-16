@@ -9,8 +9,8 @@ public class Flashcard {
     @NotBlank
     private final String word;
 
-    @NotBlank
-    private String lemma; // base form
+    @NotNull
+    private String lemma = ""; // base form
 
     @NotNull
     private String translation = "";

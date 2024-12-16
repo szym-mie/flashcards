@@ -56,7 +56,7 @@ const CreateFlashcardForm = () => {
               </div>
             </FormField>
             <FormField label="Zawartość" className="mt-4">
-              <Textarea name="text" />
+              <Textarea name="text" defaultValue={sentence?.text} />
             </FormField>
             <div className="mt-6 flex justify-end gap-2">
               <Button text="Anuluj" variant="secondary" onClick={close} />

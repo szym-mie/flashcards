@@ -4,6 +4,7 @@ import CreateFlashcardForm from "~/components/CreateFlashcardForm";
 import EditFlashcardForm from "~/components/EditFlashcardForm";
 import { useFlashcards } from "../context/FlashcardContext";
 import { useEffect } from "react";
+import Sentence from "./Sentence";
 
 const FlashcardList = () => {
   const { sentence, flashcards } = useFlashcards();
@@ -61,6 +62,7 @@ const FlashcardList = () => {
           <CreateFlashcardForm />
         </Breadcrumb>
       </div>
+      <Sentence />
     </>
   );
 };

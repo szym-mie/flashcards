@@ -45,7 +45,13 @@ const EditFlashcardForm = ({
   };
 
   const handleRemove = async () => {
-    await removeFlashcard({ word, translation });
+    await removeFlashcard({
+      word,
+      lemma,
+      translation,
+      partOfSpeech,
+      transcription,
+    });
     close();
   };
 
