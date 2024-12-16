@@ -396,3 +396,576 @@ apple,jabłko
     - **Metody:** 90%
     - **Linie Kodów:** 96%
 
+---
+
+## Kamień milowy 2: Funkcjonalności związane z morfologią oraz fonetyką słów. Podstawowa warstwa persystencji.
+W tym etapie dodajemy funkcjonalności związane z morfologią oraz fonetyką słów. Ponadto stworzymy podstawową warstwę persystencji.
+
+---
+
+### Wymagania funkcjonalne:
+
+- Podział słów na części mowy.
+- Formy fleksyjne.
+- Wyświetlanie tekstu w interlinii.
+- (Transliteracja) i transkrypcja.
+- Wiele tłumaczeń jednego słowa.
+- Eksportowanie tego do csv w kolejnych kolumnach.
+- Persystencja form słownikowych.
+
+---
+
+### Sekcja: Baza Danych
+
+#### Struktura Bazy Danych SQLite
+
+Aplikacja korzysta z bazy danych SQLite, która składa się z dwóch tabel: `Translation` i `Language`. Struktura bazy danych umożliwia przechowywanie informacji o tłumaczeniach słów w różnych językach, z odniesieniem do tabeli języków.
+
+#### Schemat Tabel
+
+1. **Tabela: `Translation`**
+    - Przechowuje dane dotyczące tłumaczeń słów.
+
+   #### Kolumny:
+    - **`id`** *(int)*: Unikalny identyfikator tłumaczenia.
+        - Klucz główny.
+    - **`word`** *(text)*: Słowo w formie bazowej (np. "run").
+    - **`translation`** *(text)*: Tłumaczenie słowa (np. "bieg").
+    - **`language`** *(varchar(2))*: Kod języka powiązanego z tłumaczeniem (np. "en").
+        - Klucz obcy odnoszący się do tabeli `Language`.
+
+2. **Tabela: `Language`**
+    - Przechowuje dane o językach.
+
+   #### Kolumny:
+    - **`id`** *(varchar(2))*: Kod języka (np. "en").
+        - Klucz główny.
+    - **`language`** *(varchar(30))*: Pełna nazwa języka (np. "English").
+
+#### Relacje
+
+- **Relacja między tabelami**:
+    - Kolumna `language` w tabeli `Translation` jest kluczem obcym odnoszącym się do kolumny `id` w tabeli `Language`.
+    - Relacja umożliwia powiązanie każdego tłumaczenia z odpowiednim językiem.
+
+#### Przykładowe Dane w Bazie Danych
+
+1. **Tabela `Language`**
+
+| id  | language  |
+|-----|-----------|
+| en  | English   |
+| fr  | French    |
+| es  | Spanish   |
+
+2. **Tabela `Translation`**
+
+| id  | word   | translation | language |
+|-----|--------|-------------|----------|
+| 1   | run    | bieg        | en       |
+| 2   | courir | biegać      | fr       |
+| 3   | correr | correr      | es       |
+
+#### Obsługa w Aplikacji
+
+- **Repozytoria**:
+    - Aplikacja używa repozytoriów Spring Data JPA, takich jak `LemmaRepository` i `LanguageRepository`, aby zapewnić dostęp do danych w tabelach `Translation` i `Language`.
+
+- **Usługi**:
+    - Logika aplikacji, realizowana w warstwie usług (`LanguageService`, `LemmaService`), pozwala na interakcję z bazą danych w sposób abstrakcyjny, bez konieczności bezpośredniego pisania zapytań SQL.
+---
+
+### Sekcja: Diagram Przepływu (Flowchart)
+
+#### Opis
+
+W celu lepszego zrozumienia architektury aplikacji i przepływu danych między komponentami, poniżej znajduje się link do diagramu przepływu (flowchart).
+
+#### Link do Flowcharta
+
+[Kliknij tutaj, aby otworzyć diagram przepływu aplikacji](https://miro.com/welcomeonboard/cXllaENlQU9oUzNYa1FoSG5FMVc4NWJpNFh5Rk5YVlBZM3l0V1hIMTMyWXZOSGsvbGlkVG85Vkt2OXZNTW9IN2ZtN1l3dUhsWHpZMmN2eWFvYUtiYmZ2YlNVWGJ4clg5QWJBQnlVd0kxbFBuUFBEQ0RLR3JEWU9BaTREZGpjRlAhZQ==?share_link_id=791400547424)
+
+---
+
+## Struktura projektu - backend
+
+Główne pakiety projektu to:
+
+- `config`
+- `controller`
+- `dto`
+- `expection`
+- `handler`
+- `model`
+- `repository`
+- `service` 
+
+Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane klasy.
+Poniżej znajduję się opis zmian wprowadzonych w kamieniu milowym 2.
+
+---
+
+### Pakiet: `config`
+
+#### 1. Klasa: `DataConfig`
+
+#### Opis
+
+`DataConfig` to klasa konfiguracji Springa, odpowiedzialna za konfigurację źródła danych (`DataSource`) aplikacji.
+
+#### Adnotacje
+
+- `@Bean`: Wskazuje, że metoda zwraca komponent zarządzany przez kontener Springa.
+
+#### Pola
+
+1. **`environment`**
+    - Typ: `Environment`
+    - Opis: Obiekt zarządzany przez Springa, który przechowuje właściwości środowiskowe aplikacji.
+
+#### Metody
+
+1. **`dataSource()`**
+    - Konfiguruje i zwraca źródło danych (`DataSource`).
+    - Zwracany typ: `DataSource`.
+    - Szczegóły konfiguracji:
+        - Pobiera dane połączenia z pliku konfiguracyjnego aplikacji za pomocą `environment`.
+
+---
+
+#### 2. Klasa: `WebConfiguration`
+
+#### Opis
+
+`WebConfiguration` to klasa konfiguracji Springa, odpowiedzialna za obsługę zasobów statycznych oraz reguł CORS.
+
+#### Adnotacje
+
+- `@Configuration`: Wskazuje, że klasa zawiera konfigurację Springa.
+- `@Override`: Używana do nadpisania metod z interfejsu `WebMvcConfigurer`.
+
+#### Metody
+
+1. **`addResourceHandlers(ResourceHandlerRegistry registry)`**
+    - Konfiguruje obsługę zasobów statycznych.
+    - Parametry:
+        - `registry` – rejestrator obsługi zasobów.
+    - Szczegóły:
+        - Mapuje zasoby `/static/**` na katalog `classpath:/static/`.
+        - Dodaje cache z okresem trwania 6000 sekund.
+        - Dodaje niestandardowy resolver `PathResourceResolver`.
+
+2. **`addCorsMappings(CorsRegistry registry)`**
+    - Konfiguruje reguły CORS.
+    - Parametry:
+        - `registry` – rejestrator reguł CORS.
+    - Szczegóły:
+        - Pozwala na dostęp do wszystkich endpointów (`/**`) z określonych źródeł:
+            - `http://localhost:5173`
+            - `http://localhost:5174`
+        - Akceptuje metody HTTP: `GET`, `POST`, `PUT`, `DELETE`, `OPTIONS`.
+        - Zezwala na wszystkie nagłówki.
+
+---
+
+### Pakiet: `controller`
+
+#### 2. Klasa: `LanguageController`
+
+#### Opis
+
+`LanguageController` zarządza operacjami związanymi z językami, takimi jak pobieranie, tworzenie i aktualizowanie.
+
+#### Adnotacje
+
+- `@RestController`: Klasa kontrolera obsługująca żądania HTTP w architekturze REST.
+- `@RequestMapping("/api/languages")`: Mapuje endpointy kontrolera do ścieżki `/api/languages`.
+- `@AllArgsConstructor`: Generuje konstruktor dla wszystkich pól klasy.
+
+#### Pola
+
+1. **`languageService`**
+    - Typ: `LanguageService`
+    - Opis: Serwis zarządzający operacjami na językach.
+
+#### Endpointy
+
+1. **`GET /api/languages`**
+    - Opis: Pobiera wszystkie języki.
+    - Zwracany typ: `ResponseEntity<List<Language>>`.
+
+2. **`POST /api/languages`**
+    - Opis: Tworzy nowy język.
+    - Parametry:
+        - `language` – obiekt reprezentujący język.
+    - Zwracany typ: `ResponseEntity<Language>`.
+
+3. **`PUT /api/languages`**
+    - Opis: Aktualizuje istniejący język.
+    - Parametry:
+        - `language` – obiekt języka do aktualizacji.
+    - Zwracany typ: `ResponseEntity<Language>`.
+
+---
+
+#### 3. Klasa: `LemmaController`
+
+#### Opis
+
+`LemmaController` zarządza operacjami związanymi z lemmami, takimi jak ich wyszukiwanie i tworzenie.
+
+#### Adnotacje
+
+- `@RestController`: Klasa kontrolera obsługująca żądania HTTP w architekturze REST.
+- `@RequestMapping("/api/lemmas")`: Mapuje endpointy kontrolera do ścieżki `/api/lemmas`.
+- `@AllArgsConstructor`: Generuje konstruktor dla wszystkich pól klasy.
+
+#### Pola
+
+1. **`lemmaRepository`**
+    - Typ: `LemmaRepository`
+    - Opis: Repozytorium zarządzające lemmami.
+
+#### Endpointy
+
+1. **`GET /api/lemmas/{name}`**
+    - Opis: Pobiera lemmę na podstawie jej nazwy i języka.
+    - Parametry:
+        - `name` – nazwa lemmy (parametr ścieżki).
+        - `language.id` – ID języka (parametr żądania).
+        - `language.name` – nazwa języka (parametr żądania).
+    - Zwracany typ: `ResponseEntity<Lemma>`.
+
+2. **`POST /api/lemmas`**
+    - Opis: Tworzy lub aktualizuje lemmę.
+    - Parametry:
+        - `lemma` – obiekt reprezentujący lemmę.
+    - Zwracany typ: `ResponseEntity<Lemma>`.
+
+---
+
+### Pakiet: `dto`
+
+#### 1. Klasa: `FlashcardsResponse`
+
+#### Opis
+
+`FlashcardsResponse` to obiekt transferu danych (DTO) używany do zwracania informacji o przetworzonym zdaniu oraz listy fiszek.
+
+#### Adnotacje
+
+- `@AllArgsConstructor`: Generuje konstruktor dla wszystkich pól klasy.
+- `@Getter`: Generuje metody getter dla wszystkich pól klasy.
+
+#### Pola
+
+1. **`sentence`**
+    - Typ: `Sentence`
+    - Opis: Przetworzone zdanie, które było źródłem dla fiszek.
+
+2. **`flashcards`**
+    - Typ: `List<Flashcard>`
+    - Opis: Lista fiszek wygenerowanych na podstawie zdania.
+
+---
+
+### Pakiet: `handler`
+
+#### 1. Klasa: `RestResponseEntityExceptionHandler`
+
+#### Opis
+
+`RestResponseEntityExceptionHandler` to klasa globalnego obsługiwania wyjątków w aplikacji, używana do przechwytywania i przetwarzania wyjątków rzucanych przez kontrolery REST.
+
+#### Adnotacje
+
+- `@ControllerAdvice`: Umożliwia definiowanie globalnej obsługi wyjątków dla wszystkich kontrolerów w aplikacji.
+
+#### Metody
+
+1. **`handleIOException(IOException exception, WebRequest request)`**
+    - Obsługuje wyjątki typu `IOException`.
+    - Parametry:
+        - `exception`: Obiekt wyjątku `IOException`.
+        - `request`: Obiekt żądania `WebRequest`.
+    - Zwracany typ: `ResponseEntity<Object>`
+    - Działanie: Zwraca odpowiedź HTTP z kodem `500 Internal Server Error` i komunikatem `"IO exception occurred"`.
+
+2. **`handleNoSuchElementException(NoSuchElementException exception)`**
+    - Obsługuje wyjątki typu `NoSuchElementException`.
+    - Parametry:
+        - `exception`: Obiekt wyjątku `NoSuchElementException`.
+    - Zwracany typ: `ResponseEntity<String>`
+    - Działanie: Zwraca odpowiedź HTTP z kodem `404 Not Found`.
+
+3. **`handleResourceAlreadyExists(ResourceAlreadyExistsException exception)`**
+    - Obsługuje wyjątki typu `ResourceAlreadyExistsException`.
+    - Parametry:
+        - `exception`: Obiekt wyjątku `ResourceAlreadyExistsException`.
+    - Zwracany typ: `ResponseEntity<String>`
+    - Działanie: Zwraca odpowiedź HTTP z kodem `409 Conflict`.
+
+---
+
+### Pakiet: `model`
+
+#### 1. Klasa: `Flashcard`
+
+#### Opis
+
+`Flashcard` reprezentuje jednostkę słownika zawierającą informacje o słowie, jego podstawowej formie (lemma), tłumaczeniu, części mowy oraz transkrypcji.
+
+#### Adnotacje
+
+- `@Data`: Automatycznie generuje metody `get`, `set`, `equals`, `hashCode` i `toString`.
+- `@NotBlank`: Wymaga, aby pola nie były puste ani null.
+- `@NotNull`: Wymaga, aby pola były ustawione.
+
+#### Pola
+
+1. **`word`**
+    - Typ: `String`
+    - Opis: Słowo reprezentowane przez fiszkę. Wartość nie może być pusta.
+
+2. **`lemma`**
+    - Typ: `String`
+    - Opis: Podstawowa forma słowa (lemma).
+
+3. **`translation`**
+    - Typ: `String`
+    - Opis: Tłumaczenie słowa. Domyślnie puste.
+
+4. **`partOfSpeech`**
+    - Typ: `String`
+    - Opis: Część mowy (np. czasownik, rzeczownik). Domyślnie puste.
+
+5. **`transcription`**
+    - Typ: `String`
+    - Opis: Transkrypcja fonetyczna słowa. Domyślnie puste.
+
+#### Konstruktor
+
+1. **`Flashcard(String word)`**
+    - Parametry:
+        - `word`: Słowo reprezentowane przez fiszkę.
+    - Działanie: Wymusza niepustą wartość dla `word`.
+
+---
+
+#### 2. Klasa: `Language`
+
+#### Opis
+
+`Language` reprezentuje język, w którym operuje aplikacja.
+
+#### Adnotacje
+
+- `@Entity`: Klasa mapowana na tabelę w bazie danych.
+- `@Data`: Automatycznie generuje metody `get`, `set`, `equals`, `hashCode` i `toString`.
+- `@Id`: Oznacza pole jako klucz główny.
+- `@NotBlank`: Wymaga, aby pola nie były puste ani null.
+- `@AllArgsConstructor`: Generuje konstruktor z wszystkimi polami.
+
+#### Pola
+
+1. **`id`**
+    - Typ: `String`
+    - Opis: Unikalny identyfikator języka (np. "en" dla angielskiego).
+
+2. **`name`**
+    - Typ: `String`
+    - Opis: Nazwa języka (np. "English").
+
+#### Konstruktor
+
+- **Domyślny konstruktor** dla JPA.
+
+---
+
+#### 3. Klasa: `Lemma`
+
+#### Opis
+
+`Lemma` reprezentuje podstawową formę słowa związaną z językiem.
+
+#### Adnotacje
+
+- `@Entity`: Klasa mapowana na tabelę w bazie danych.
+- `@IdClass(LemmaId.class)`: Klucz główny klasy składa się z pól `name` i `language`.
+- `@Data`: Automatycznie generuje metody `get`, `set`, `equals`, `hashCode` i `toString`.
+- `@Id`: Oznacza pola jako klucz główny.
+- `@NotBlank`: Wymaga, aby pola nie były puste ani null.
+- `@NotNull`: Wymaga, aby pola były ustawione.
+- `@ManyToOne`: Relacja wiele-do-jednego z encją `Language`.
+- `@JoinColumn(name = "language_id")`: Kolumna klucza obcego do `Language`.
+
+#### Pola
+
+1. **`name`**
+    - Typ: `String`
+    - Opis: Nazwa lematy.
+
+2. **`translation`**
+    - Typ: `String`
+    - Opis: Tłumaczenie lematy.
+
+3. **`language`**
+    - Typ: `Language`
+    - Opis: Język powiązany z lematą.
+
+#### Konstruktor
+
+- **Domyślny konstruktor** dla JPA.
+
+---
+
+#### 4. Klasa: `LemmaId`
+
+#### Opis
+
+`LemmaId` reprezentuje klucz złożony dla encji `Lemma`.
+
+#### Adnotacje
+
+- `@Data`: Automatycznie generuje metody `get`, `set`, `equals`, `hashCode` i `toString`.
+- `@NoArgsConstructor`: Generuje domyślny konstruktor dla JPA.
+
+#### Pola
+
+1. **`name`**
+    - Typ: `String`
+    - Opis: Nazwa lematy.
+
+2. **`language`**
+    - Typ: `String`
+    - Opis: Identyfikator języka.
+
+---
+
+#### 5. Klasa: `Sentence`
+
+#### Opis
+
+`Sentence` reprezentuje zdanie powiązane z określonym językiem.
+
+#### Adnotacje
+
+- `@Value`: Tworzy niemutowalną klasę z polami tylko do odczytu.
+- `@AllArgsConstructor`: Generuje konstruktor z wszystkimi polami.
+- `@NotBlank`: Wymaga, aby pola nie były puste ani null.
+- `@NotNull`: Wymaga, aby pola były ustawione.
+
+#### Pola
+
+1. **`text`**
+    - Typ: `String`
+    - Opis: Tekst zdania.
+
+2. **`language`**
+    - Typ: `Language`
+    - Opis: Język zdania.
+
+---
+
+### Pakiet: `repository`
+
+#### 2. Interfejs: `LanguageRepository`
+
+#### Opis
+
+`LanguageRepository` jest interfejsem repozytorium dla encji `Language`, opartym na Spring Data JPA. Umożliwia operacje CRUD na encji języka.
+
+#### Adnotacje
+
+- `@Repository`: Oznacza interfejs jako komponent Springa, odpowiedzialny za operacje na bazie danych.
+
+#### Dziedziczenie
+
+- Dziedziczy po `JpaRepository<Language, String>`:
+    - `Language`: Typ zarządzanej encji.
+    - `String`: Typ klucza głównego encji.
+
+---
+
+#### 3. Interfejs: `LemmaRepository`
+
+#### Opis
+
+`LemmaRepository` jest interfejsem repozytorium dla encji `Lemma`, opartym na Spring Data JPA. Umożliwia operacje CRUD oraz dodatkowe wyszukiwanie na podstawie słowa i języka.
+
+#### Adnotacje
+
+- `@Repository`: Oznacza interfejs jako komponent Springa, odpowiedzialny za operacje na bazie danych.
+- `@Query`: Definiuje niestandardowe zapytanie JPQL.
+
+#### Dziedziczenie
+
+- Dziedziczy po `JpaRepository<Lemma, Long>`:
+    - `Lemma`: Typ zarządzanej encji.
+    - `Long`: Typ klucza głównego encji.
+
+#### Metody
+
+1. **`findOneByNameAndLanguage(String name, Language language)`**
+    - Opis: Wyszukuje lemat na podstawie nazwy i języka.
+    - Parametry:
+        - `name`: Nazwa lematy.
+        - `language`: Obiekt języka powiązanego z lematą.
+    - Zwracany typ: `Optional<Lemma>`.
+---
+
+
+### Pakiet: `service`
+
+#### 1. Klasa: `LanguageService`
+
+#### Opis
+
+`LanguageService` to serwis odpowiedzialny za zarządzanie operacjami na encji `Language`, w tym za tworzenie, aktualizowanie oraz pobieranie listy języków.
+
+#### Adnotacje
+
+- `@Service`: Klasa jest komponentem Springa, który zarządza logiką biznesową.
+- `@AllArgsConstructor`: Generuje konstruktor z wszystkimi wymaganymi polami.
+
+#### Pola
+
+1. **`languageRepository`**
+    - Typ: `LanguageRepository`
+    - Opis: Repozytorium Spring Data JPA dla encji `Language`, umożliwiające operacje na bazie danych.
+
+#### Metody
+
+1. **`getAll()`**
+    - Opis: Pobiera listę wszystkich języków z repozytorium.
+    - Zwracany typ: `List<Language>`.
+
+2. **`create(Language language)`**
+    - Opis: Tworzy nowy język. Sprawdza, czy język o danym `id` już istnieje, a jeśli tak, zgłasza wyjątek.
+    - Parametry:
+        - `language`: Obiekt języka do utworzenia.
+    - Zwracany typ: `Language`.
+
+   #### Wyjątki:
+    - `ResourceAlreadyExistsException`: Jeśli język o danym `id` już istnieje.
+
+3. **`update(Language language)`**
+    - Opis: Aktualizuje istniejący język. Jeśli język o danym `id` nie istnieje, zgłasza wyjątek.
+    - Parametry:
+        - `language`: Obiekt języka do zaktualizowania.
+    - Zwracany typ: `void`.
+
+   #### Wyjątki:
+    - `NoSuchElementException`: Jeśli język o danym `id` nie istnieje.
+
+---
+
+### Testowanie
+
+- **Pokrycie Testami:**
+    - **Klasy:** 92%
+    - **Metody:** 90%
+    - **Linie Kodów:** 91%
+---
+
+
