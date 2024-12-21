@@ -2,11 +2,14 @@ package pl.agh.to.lang.model;
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
+import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.Test;
+
 import java.util.Set;
-import static org.junit.jupiter.api.Assertions.*;
-import jakarta.validation.Validator;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class LanguageTest {
 

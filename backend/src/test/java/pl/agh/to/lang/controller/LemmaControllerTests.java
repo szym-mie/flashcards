@@ -15,7 +15,9 @@ import pl.agh.to.lang.model.Lemma;
 import pl.agh.to.lang.repository.LemmaRepository;
 import java.util.Optional;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(LemmaController.class)
