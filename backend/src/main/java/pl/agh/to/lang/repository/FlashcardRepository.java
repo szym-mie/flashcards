@@ -12,16 +12,12 @@ import java.util.Optional;
 public class FlashcardRepository {
     private final Map<String, Flashcard> flashcards = new HashMap<>();
 
-    public List<Flashcard> getAll() {
+    public List<Flashcard> findAll() {
         return flashcards.values().stream().toList();
     }
 
     public Optional<Flashcard> findByWord(String word) {
         return Optional.ofNullable(flashcards.get(word));
-    }
-
-    public Flashcard findByWordOrThrow(String word) {
-        return findByWord(word).orElseThrow();
     }
 
     public void save(Flashcard flashcard) {
@@ -31,19 +27,17 @@ public class FlashcardRepository {
     }
 
     public void update(Flashcard flashcard) {
-        Flashcard foundFlashcard = findByWordOrThrow(flashcard.getWord());
+        Optional<Flashcard> optionalFlashcard = findByWord(flashcard.getWord());
 
-        foundFlashcard.setLemma(flashcard.getLemma());
-        foundFlashcard.setTranslation(flashcard.getTranslation());
-        foundFlashcard.setPartOfSpeech(flashcard.getPartOfSpeech());
-        foundFlashcard.setTranscription(flashcard.getTranscription());
+        optionalFlashcard.ifPresent(foundFlashcard -> {
+            foundFlashcard.setLemma(flashcard.getLemma());
+            foundFlashcard.setTranslation(flashcard.getTranslation());
+            foundFlashcard.setPartOfSpeech(flashcard.getPartOfSpeech());
+            foundFlashcard.setTranscription(flashcard.getTranscription());
+        });
     }
 
-    public void remove(Flashcard flashcard) {
-        // ensure that flashcard exist
-        String word = flashcard.getWord();
-        findByWordOrThrow(word);
-
-        flashcards.remove(word);
+    public void delete(Flashcard flashcard) {
+        flashcards.remove(flashcard.getWord());
     }
 }

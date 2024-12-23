@@ -11,7 +11,7 @@ import CreateLanguageForm from "./CreateLanguageForm";
 
 const CreateFlashcardForm = () => {
   const close = useClose();
-  const { sentence, addFlashcards, languages } = useFlashcards();
+  const { sentence, createFlashcards, languages } = useFlashcards();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleSubmit = async (event) => {
@@ -21,7 +21,7 @@ const CreateFlashcardForm = () => {
     const text = formData.get("text");
     const language = formData.get("language");
 
-    await addFlashcards({
+    await createFlashcards({
       text,
       language: languages.find(({ id }) => id === language),
     });

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,8 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.agh.to.lang.dto.FlashcardsResponse;
 import pl.agh.to.lang.model.Flashcard;
 import pl.agh.to.lang.model.Sentence;
-import pl.agh.to.lang.repository.FlashcardRepository;
-import pl.agh.to.lang.service.TextProcessorService;
+import pl.agh.to.lang.service.FlashcardService;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -28,40 +28,33 @@ import java.util.List;
 @RequestMapping("/api/flashcards")
 @RequiredArgsConstructor
 public class FlashcardController {
-    private final TextProcessorService textProcessorService;
-
-    private final FlashcardRepository flashcardRepository;
-
-    private Sentence sentence;
+    private final FlashcardService flashcardService;
 
     @GetMapping
-    public ResponseEntity<FlashcardsResponse> retrieveAllFlashcards() {
-        return ResponseEntity.ok(new FlashcardsResponse(sentence, flashcardRepository.getAll()));
+    public ResponseEntity<List<Flashcard>> retrieveAllFlashcards() {
+        return ResponseEntity.ok(flashcardService.getAll());
+    }
+
+    @GetMapping("/sentence")
+    public ResponseEntity<Sentence> retrieveSentence() {
+        return ResponseEntity.ok(flashcardService.getSentence());
     }
 
     @PostMapping
     public ResponseEntity<List<Flashcard>> processSentence(@Valid @RequestBody Sentence sentence) {
-        this.sentence = sentence;
-
-        List<String> wordList = textProcessorService.extractWords(sentence.getText());
-        wordList.stream()
-                .map(Flashcard::new)
-                .forEach(flashcardRepository::save);
-
-
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.status(HttpStatus.CREATED).body(flashcardService.create(sentence));
     }
 
     @PutMapping
     public ResponseEntity<Flashcard> updateFlashcard(@Valid @RequestBody Flashcard flashcard) {
-        flashcardRepository.update(flashcard);
+        flashcardService.update(flashcard);
 
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping
     public ResponseEntity<Flashcard> removeFlashcard(@Valid @RequestBody Flashcard flashcard) {
-        flashcardRepository.remove(flashcard);
+        flashcardService.remove(flashcard);
 
         return ResponseEntity.noContent().build();
     }
@@ -79,7 +72,7 @@ public class FlashcardController {
         CsvMapper mapper = new CsvMapper();
         StringWriter stringWriter = new StringWriter();
         ObjectWriter csvWriter = mapper.writer(schema).forType(List.class);
-        csvWriter.writeValue(stringWriter, flashcardRepository.getAll());
+        csvWriter.writeValue(stringWriter, flashcardService.getAll());
 
         MediaType mediaType = MediaType.parseMediaType("text/csv");
         return ResponseEntity.ok()

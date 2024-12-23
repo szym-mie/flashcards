@@ -5,7 +5,11 @@ class FlashcardAPI extends API {
     return await this.request("GET:/api/flashcards");
   }
 
-  async add(payload) {
+  async getSentence() {
+    return await this.request("GET:/api/flashcards/sentence");
+  }
+
+  async create(payload) {
     return await this.request("POST:/api/flashcards", payload);
   }
 
