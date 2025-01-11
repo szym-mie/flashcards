@@ -42,21 +42,14 @@ class FlashcardControllerTests {
         Flashcard flashcard2 = new Flashcard("world");
         flashcard2.setTranslation("świat");
 
-        Sentence sentence = new Sentence("Example sentence", null);
-
         Mockito.when(flashcardService.getAll()).thenReturn(List.of(flashcard1, flashcard2));
-
-        Field sentenceField = FlashcardController.class.getDeclaredField("sentence");
-        sentenceField.setAccessible(true);
-        sentenceField.set(flashcardController, sentence);
 
         mvc.perform(MockMvcRequestBuilders.get("/api/flashcards"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.sentence.text").value("Example sentence"))
-                .andExpect(jsonPath("$.flashcards[0].word").value("hello"))
-                .andExpect(jsonPath("$.flashcards[0].translation").value("cześć"))
-                .andExpect(jsonPath("$.flashcards[1].word").value("world"))
-                .andExpect(jsonPath("$.flashcards[1].translation").value("świat"));
+                .andExpect(jsonPath("$[0].word").value("hello"))
+                .andExpect(jsonPath("$[0].translation").value("cześć"))
+                .andExpect(jsonPath("$[1].word").value("world"))
+                .andExpect(jsonPath("$[1].translation").value("świat"));
     }
 
     @Test
@@ -68,6 +61,7 @@ class FlashcardControllerTests {
                         .content("{\"text\": \"example text\", \"language\": {\"id\": \"en\", \"name\": \"English\"}}"))
                 .andExpect(status().isCreated());
 
+        // FIXME
         Mockito.verify(flashcardService, Mockito.times(2)).create(Mockito.any());
     }
 

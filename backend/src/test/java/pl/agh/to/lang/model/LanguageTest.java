@@ -17,7 +17,7 @@ class LanguageTest {
 
     public LanguageTest() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        this.validator = (Validator) factory.getValidator();
+        this.validator = factory.getValidator();
     }
 
     @Test
