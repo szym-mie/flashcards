@@ -26,6 +26,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FlashcardController {
     private final FlashcardService flashcardService;
+    private final FlashcardCsvExporter csvExporter = new FlashcardCsvExporter();
 
     @GetMapping
     public ResponseEntity<List<Flashcard>> retrieveAllFlashcards() {
@@ -61,6 +62,6 @@ public class FlashcardController {
         MediaType mediaType = MediaType.parseMediaType("text/csv");
         return ResponseEntity.ok()
                 .contentType(mediaType)
-                .body(csvExporter.write(flashcardRepository.getAll()));
+                .body(csvExporter.write(flashcardService.getAll()));
     }
 }
