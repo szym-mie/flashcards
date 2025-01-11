@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.agh.to.lang.dto.FlashcardsResponse;
 import pl.agh.to.lang.export.FlashcardCsvExporter;
 import pl.agh.to.lang.model.Flashcard;
 import pl.agh.to.lang.model.Sentence;
