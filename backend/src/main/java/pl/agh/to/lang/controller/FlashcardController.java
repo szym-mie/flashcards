@@ -1,8 +1,5 @@
 package pl.agh.to.lang.controller;
 
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,12 +13,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pl.agh.to.lang.dto.FlashcardsResponse;
+import pl.agh.to.lang.export.FlashcardCsvExporter;
 import pl.agh.to.lang.model.Flashcard;
 import pl.agh.to.lang.model.Sentence;
 import pl.agh.to.lang.service.FlashcardService;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.List;
 
 @RestController
@@ -61,22 +58,9 @@ public class FlashcardController {
 
     @GetMapping("/export")
     public ResponseEntity<String> exportToCSV() throws IOException {
-        CsvSchema schema = CsvSchema.builder()
-                .addColumn("word")
-                .addColumn("lemma")
-                .addColumn("translation")
-                .addColumn("partOfSpeech")
-                .addColumn("transcription")
-                .build().withHeader();
-
-        CsvMapper mapper = new CsvMapper();
-        StringWriter stringWriter = new StringWriter();
-        ObjectWriter csvWriter = mapper.writer(schema).forType(List.class);
-        csvWriter.writeValue(stringWriter, flashcardService.getAll());
-
         MediaType mediaType = MediaType.parseMediaType("text/csv");
         return ResponseEntity.ok()
                 .contentType(mediaType)
-                .body(stringWriter.toString());
+                .body(csvExporter.write(flashcardRepository.getAll()));
     }
 }

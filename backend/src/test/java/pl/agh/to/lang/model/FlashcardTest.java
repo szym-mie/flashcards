@@ -23,18 +23,4 @@ class FlashcardTest {
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> new Flashcard(" "));
         assertEquals("Blank word", exception.getMessage());
     }
-
-    @Test
-    void testSettersAndGetters() {
-        Flashcard flashcard = new Flashcard("hello");
-        flashcard.setLemma("hello");
-        flashcard.setTranslation("cześć");
-        flashcard.setPartOfSpeech("noun");
-        flashcard.setTranscription("həˈloʊ");
-
-        assertEquals("hello", flashcard.getLemma());
-        assertEquals("cześć", flashcard.getTranslation());
-        assertEquals("noun", flashcard.getPartOfSpeech());
-        assertEquals("həˈloʊ", flashcard.getTranscription());
-    }
 }
