@@ -4,66 +4,68 @@ import IconButton from "~/components/IconButton";
 import Button from "~/components/Button";
 import Input from "~/components/Input";
 import FormField from "~/components/FormField";
+import { useForm } from "react-hook-form";
 import { useFlashcards } from "../context/FlashcardContext";
 import { useState } from "react";
 
-const EditFlashcardForm = ({
-  word,
-  lemma,
-  translation: _translation,
-  partOfSpeech,
-  transcription,
-}) => {
+const EditFlashcardForm = (params) => {
   const close = useClose();
-  const [translation, setTranslation] = useState(_translation);
-  const { sentence, updateFlashcard, removeFlashcard, getLemma, upsertLemma } =
-    useFlashcards();
+  const [translation, setTranslation] = useState(params.translation);
+  const { register, handleSubmit, getValues } = useForm({
+    defaultValues: {
+      word: params.word,
+      lemma: params.lemma,
+      partOfSpeech: params.partOfSpeech,
+      transcription: params.transcription,
+    },
+    values: {
+      translation: translation,
+    },
+  });
+  const { sentence, updateFlashcard, removeFlashcard, getLemma, upsertLemma } = useFlashcards();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
-    const formData = new FormData(event.target);
-    const lemma = formData.get("lemma");
-    const translation = formData.get("translation");
-    const partOfSpeech = formData.get("partOfSpeech");
-    const transcription = formData.get("transcription");
-
+  const onSubmit = async (data) => {
     await updateFlashcard({
-      word,
-      lemma,
-      translation,
-      partOfSpeech,
-      transcription,
+      word: params.word,
+      lemma: data.lemma,
+      translation: data.translation,
+      partOfSpeech: data.partOfSpeech,
+      transcription: data.transcription,
     });
     await upsertLemma({
-      name: lemma,
-      translation,
+      name: data.lemma,
+      translation: translation,
       language: sentence.language,
     });
 
     close();
   };
 
-  const handleRemove = async () => {
+  const onRemove = async () => {
     await removeFlashcard({
-      word,
-      lemma,
-      translation,
-      partOfSpeech,
-      transcription,
+      word: params.word,
+      lemma: params.lemma,
+      translation: translation,
+      partOfSpeech: params.partOfSpeech,
+      transcription: params.transcription,
     });
+
     close();
   };
 
-  const handleLemmaChange = async (event) => {
+  const onLemmaChange = async () => {
     const lemma = await getLemma({
-      name: event.target.value,
+      name: getValues("lemma"),
       language: sentence.language,
     });
 
     if (lemma.translation) {
       setTranslation(lemma.translation);
     }
+  };
+
+  const onTranslationChange = () => {
+    setTranslation(getValues("translation"));
   };
 
   return (
@@ -77,33 +79,25 @@ const EditFlashcardForm = ({
             <h3>Edytuj fiszke</h3>
             <IconButton variant="secondary" icon={X} onClick={close} />
           </header>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <FormField label="Słowo" className="mt-6">
-              <Input name="word" defaultValue={word} disabled />
+              <Input {...register("word", { disabled: true })} />
             </FormField>
             <FormField label="Forma bazowa" className="mt-4">
-              <Input
-                name="lemma"
-                defaultValue={lemma}
-                onChange={handleLemmaChange}
-              />
+              <Input {...register("lemma", { onChange: onLemmaChange })} />
             </FormField>
             <FormField label="Tłumaczenie" className="mt-4">
-              <Input
-                name="translation"
-                value={translation}
-                onChange={(event) => setTranslation(event.target.value)}
-              />
+              <Input {...register("translation", { onChange: onTranslationChange })} />
             </FormField>
             <FormField label="Część mowy" className="mt-4">
-              <Input name="partOfSpeech" defaultValue={partOfSpeech} />
+              <Input {...register("partOfSpeech")} />
             </FormField>
             <FormField label="Transkrypcja" className="mt-4">
-              <Input name="transcription" defaultValue={transcription} />
+              <Input {...register("transcription")} />
             </FormField>
             <div className="mt-6 flex justify-end gap-2">
               <Button text="Anuluj" variant="secondary" onClick={close} />
-              <Button variant="secondary" text="Usuń" onClick={handleRemove} />
+              <Button variant="secondary" text="Usuń" onClick={onRemove} />
               <Button type="submit" text="Zapisz" />
             </div>
           </form>
