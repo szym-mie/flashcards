@@ -798,31 +798,6 @@ Klasa reprezentująca blok tekstu
         - `@NotNull`: Pole nie może być `null`.
     - Opis: Język, w którym tekst został podany.
 
-
-### Pakiet: `dto`
-
-#### 1. Klasa: `SentenceRequest`
-
-#### Opis
-
-`SentenceRequest` to klasa DTO (Data Transfer Object) reprezentująca żądanie użytkownika do przetwarzania zdania w aplikacji.
-
-#### Adnotacje
-
-- `@Data`: Łączy funkcje adnotacji:
-    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
-    - `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.    
-    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
-    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
-    - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
-
-#### Pola
-
-1. **`text`**
-    - Typ: `String`
-    - Opis: Tekst wprowadzany przez użytkownika do przetworzenia.
-    - Walidacja: `@NotBlank` – pole nie może być puste.
-
 ---
 
 ### Pakiet: `handler`
