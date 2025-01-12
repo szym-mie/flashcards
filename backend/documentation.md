@@ -23,12 +23,15 @@ Celem pierwszego etapu jest stworzenie aplikacji, która pozwoli na:
 - Aplikacja generuje fiszki w formacie CSV, zgodnym z aplikacjami do nauki języków obcych.
 - Struktura CSV:
     - **Kolumna 1:** Słowo w języku obcym.
-    - **Kolumna 2:** Tłumaczenie użytkownika.
+    - **Kolumna 2:** Forma podsta
+    - **Kolumna 3:** Tłumaczenie użytkownika.
+    - **Kolumna 4:** Część mowy
+    - **Kolumna 5:** Transkrypcja (zapis fonetyczny)
 - Przykład:
 
 ```csv
-  tree,drzewo  
-  apple,jabłko
+  tree,tree,drzewo,rzeczownik,tri
+  did,do,robić,czasownik,did
 ```
 
 ### 2. Przyjmowanie Bloku Tekstu
@@ -38,13 +41,18 @@ Celem pierwszego etapu jest stworzenie aplikacji, która pozwoli na:
 
 ### 3. Interaktywne Odpytywanie o Tłumaczenia
 
-- Aplikacja pyta użytkownika o tłumaczenia poszczególnych słów z tekstu.
+- Aplikacja pyta użytkownika o:
+    - formy podstawowe wyrazów,
+    - tłumaczenia wyrazów,
+    - części mowy
+    - zapis fonetyczny
 
 ### 4. Interfejs Użytkownika
 
 - Prosty, interaktywny interfejs umożliwiający:
     - Wprowadzenie tekstu.
     - Podgląd wygenerowanych fiszek.
+    - Podgląd tekstu wejściowego z dodanymi tłumaczeniami, transkrypcją etc.
     - Eksport zestawów do pliku.
 
 - Pełna obsługa znaków Unicode dla różnych alfabetów, np. chińskiego czy cyrylicy.
@@ -66,13 +74,15 @@ Wystarczy uruchomić serwer i
 
 Główne pakiety projektu to:
 
+- `config`
 - `controller`
-- `service`
-- `model`
 - `dto`
-- `handler`
-- `util`
 - `exception`
+- `export`
+- `handler`
+- `model`
+- `repository`
+- `service`
 
 Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane klasy.
 
@@ -80,7 +90,7 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 
 ### Pakiet: `controller`
 
-#### Klasa: `FlashcardController`
+#### 1. Klasa: `FlashcardController`
 
 #### Opis
 
@@ -92,19 +102,19 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 
 - `@RestController`: Klasa jest kontrolerem REST API.
 - `@RequestMapping("/api/flashcards")`: Wszystkie metody w tej klasie obsługują żądania o prefiksie URL `/api/flashcards`.
-- `@AllArgsConstructor`: Automatyczne generowanie konstruktora z polami finalnymi.
+- `@ReqauiredArgsConstructor`: Automatyczne generowanie konstruktora z polami finalnymi.
 
 ---
 
 #### Pola
 
-1. **`textProcessorService`**
-    - Typ: `TextProcessorService`
-    - Opis: Odpowiedzialny za przetwarzanie i analizę tekstu wejściowego.
-
-2. **`flashcardService`**
+1. **`flashcardService`**
     - Typ: `FlashcardService`
     - Opis: Zarządza operacjami na fiszkach.
+
+2. **`csvExporter`**
+    - Typ: `FlashcardCsvExporter`
+    - Opis: Używany do zbudowania i zwrócenia pliku CSV
 
 ---
 
@@ -120,11 +130,17 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 [
     {
         "word": "tree",
-        "translation": "drzewo"
+        "lemma": "tree",
+        "translation": "drzewo",
+        "partOfSpeech": "rzeczownik",
+        "transcription": "tri"
     },
     {
-        "word": "apple",
-        "translation": "jabłko"
+        "word": "did",
+        "lemma": "do",
+        "translation": "robić",
+        "partOfSpeech": "czasownik",
+        "transcription": "did"
     }
 ]
 ```
@@ -138,16 +154,20 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 
 ```json
 {
-    "text": "This is an example sentence."
+    "text": "This is an example sentence.",
+    "language": {
+        "id": "en",
+        "name": "English"
+    }
 }
 ```
 
 - **Przykładowa odpowiedź:**
-  - W wypadku sukcesu: 204 No Cotent
+  - W wypadku sukcesu: 201 Created
 
 #### 3. `PUT /api/flashcards`
 
-- **Opis:** Aktualizuje tłumaczenie istniejącej fiszki.
+- **Opis:** Aktualizuje istniejącą fiszkę.
 - **Parametry wejściowe:** `Flashcard` w formacie JSON.
 - **Zwracany typ:** `ResponseEntity<Flashcard>`
 - **Przykład żądania:**
@@ -155,7 +175,10 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 ```json
 {
     "word": "tree",
-    "translation": "drzewo"
+    "lemma": "tree",
+    "translation": "drzewo",
+    "partOfSpeech": "rzeczownik",
+    "transcription": "tri"
 }
 ```
 
@@ -171,8 +194,11 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 
 ```json
 {
-    "word": "jabłko",
-    "translation": "" 
+    "word": "tree",
+    "lemma": "",
+    "translation": "",
+    "partOfSpeech": "",
+    "transcription": ""
 }
 ```
 
@@ -186,10 +212,157 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 - **Przykładowa odpowiedź:**
 
 ```csv
-word,translation  
-tree,drzewo  
-apple,jabłko
+word,lemma,translation,partOfSpeech,transcription  
+tree,tree,drzewo,rzeczownik,tri  
+did,do,robić,czasownik,did
 ```
+
+---
+
+#### 2. Klasa: `LanguageController`
+
+#### Opis
+
+Klasa ta jest REST controllerem, jest odpowiedzialna za obsługę żądań HTTP związanych z dodawaniem oraz przetwarzaniem języków
+
+#### Adnotacje
+
+- `@RestController`: Klasa jest kontrolerem REST API.
+- `@RequestMapping("/api/languages")`: Wszystkie metody w tej klasie obsługują żądania o prefiksie URL `/api/languages`.
+- `@AllArgsConstructor`: Automatyczne generowanie konstruktora dla wszystkich pól.
+
+#### Pola
+
+1. **`languageService`**
+    - Typ: `LanguageService`
+    - Opis: Serwis do obsługi oraz przetwarzania żądań
+
+#### Endpointy
+
+#### 1. `GET /api/languages`
+
+- **Opis**: Zwraca wszystkie języki
+- **Zwracany typ**: `ResponseEntity<List<Language>>`
+- **Przykładowa odpowiedź:**
+
+```json
+[
+    {
+        "id": "pl",
+        "name": "Polski"
+    },
+    {
+        "id": "en",
+        "name": "English"
+    }
+]
+```
+
+#### 2. `POST /api/languages`
+
+- **Opis:** Tworzy nowy język w bazie danych (zwraca błąd, jeśli język już istnieje)
+- **Parametry wejściowe:** `Language` w formacie JSON
+- **Zwracany typ:** `ResponseEntity<Language>`
+- **Przykład żądania:**
+
+```json
+{
+    "id": "cn",
+    "name": "Chinese"
+}
+```
+
+- **Przykładowa odpowiedź:**
+W przypadku sukcesu: 201 Created
+```json
+{
+    "id": "cn",
+    "name": "Chinese"
+}
+```
+
+#### 3. `PUT /api/languages`
+
+- **Opis:** Aktualizuje istniejący język (zwraca błąd gdy języka nie ma)
+- **Parametry wejściowe:** `Language` w formacie JSON
+- **Zwracany typ:** `ResponseEntity<Language>`
+- **Przykład żądania:**
+
+```json
+{
+    "id": "cn",
+    "name": "Chinese"
+}
+```
+
+- **Przykładowa odpowiedź:**
+    - W przypadku sukcesu: 204 No Content
+
+---
+
+#### 3. Klasa `LemmaController`
+
+#### Opis
+
+Kontroler obsługuje żądania HTTP dotyczące form podstawowych słów. Żądania wysyłane do tego kontrolera służą dodawaniu form podstawowych wraz z tłumaczeniami do bazy danych.
+
+#### Adnotacje
+
+- `@RestController`: Klasa jest kontrolerem REST API.
+- `@RequestMapping("/api/lemma")`: Wszystkie metody w tej klasie obsługują żądania o prefiksie URL `/api/lemma`.
+- `@AllArgsConstructor`: Automatyczne generowanie konstruktora dla wszystkich pól.
+
+#### Pola
+
+1. **`lemmaRepository`**
+    - Typ: `LemmaRepository`
+    - Opis: Repozytorium do komunikacji z bazą danych
+
+#### Endpointy
+
+#### 1. `GET /api/lemmas/{name}`
+
+- **Opis:** Zwraca tłumaczenie na podstawie formy bazowej oraz języka.
+- **Parametry wejściowe:** `name`, `language.name`, `language.id` jako parametry żądania
+- **Zwracany Typ:** `ResponseEntity<Lemma>`
+- **Przykład żądania:**
+```
+http://URL/api/lemmas/dog?language.name=English&language.id=en
+```
+
+- **Przykładowa odpowiedź:**
+
+```json
+{
+    "name": "dog",
+    "translation": "pies",
+    "language": {
+        "id": "en",
+        "name": "English"
+    }
+}
+```
+
+#### 2. `POST /api/lemmas`
+
+- **Opis:** Zapisuje formę bazową z tłumaczeniem do bazy danych
+- **Parametry wejściowe:** `Lemma` w formie JSON
+- **Zwracany typ**: `ResponseEntity<Lemma>`
+- **Przykład żądania:**
+
+```json
+{
+    "name": "dog",
+    "translation": "pies",
+    "language": {
+        "id": "en",
+        "name": "English"
+    }
+}
+```
+
+- **Przykładowa odpowiedź:**
+    - W przypadku sukcesu: 204 No Content
 
 ---
 
