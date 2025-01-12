@@ -615,13 +615,11 @@ Repozytorium JPA, służy do zapisywania form bazowych z tłumaczeniami w bazie 
 
 ### Pakiet: `model`
 
-#### Klasa: `Flashcard`
+#### 1. Klasa: `Flashcard`
 
 #### Opis
 
 `Flashcard` to model danych reprezentujący pojedynczą fiszkę. Zawiera informacje o słowie i jego tłumaczeniu.
-
----
 
 #### Adnotacje
 
@@ -632,8 +630,6 @@ Repozytorium JPA, służy do zapisywania form bazowych z tłumaczeniami w bazie 
     - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
     - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
 
----
-
 #### Pola
 
 1. **`word`**
@@ -642,29 +638,166 @@ Repozytorium JPA, służy do zapisywania form bazowych z tłumaczeniami w bazie 
         - `@NotBlank`: pole nie może być równe `null` ani nie może być pustym łańcuchem (składającym się tylko z białych znaków).
     - Opis: Słowo w języku obcym.
 
-2. **`translation`**
+2. **`lemma`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotNull`: pole nie może być równe `null`
+    - Opis: Forma podstawowa słowa w języku obcym.
+
+3. **`translation`**
     - Typ: `String`
     - Adnotacje:
         - `@NotNull`: pole nie może być równe `null`
     - Opis: Tłumaczenie słowa wprowadzane przez użytkownika.
 
+4. **`partOfSpeech`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotNull`: pole nie może być równe `null`
+    - Opis: Częśc mowy do jakiej należy słowo.
+
+3. **`transcription`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotNull`: pole nie może być równe `null`
+    - Opis: Transkrypcja (zapis fonetyczny) słowa.
 ---
 
-#### Metody
+#### 2. Klasa `Language`
 
-1. **`getWord()`**
-    - Zwraca wartość pola `word`.
+#### Opis
 
-2. **`setWord(String word)`**
-    - Ustawia wartość pola `word`.
+Klasa przechowuje reprezentuję język
 
-3. **`getTranslation()`**
-    - Zwraca wartość pola `translation`.
+#### Adnotacje
 
-4. **`setTranslation(String translation)`**
-    - Ustawia wartość pola `translation`.
+- `@Data`: Łączy funkcje adnotacji:
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.    
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
+- `@Entity`: Klasa jest obiektem JPA
+- `@AllArgsConstructor`: Dodaje konstruktor dla wszystkich argumentów
+- `@NoArgsConstructor`: Dodaje konstruktor bezargumentowy (wymagane przez JPA)
+
+#### Pola
+
+1. **`id`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@Id`: Pole jest kluczem głównym w bazie danych
+        - `@NotBlank`: Pole nie może być `null` ani pustym łańcuchem.
+    - Opis: Dwuliterowy kod języka
+
+2. **`name`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotBlank`: Pole nie może być `null` ani pustym łańcuchem.
+    - Opis: Nazwa języka
 
 ---
+
+#### 3. Klasa `Lemma`
+
+#### Opis
+
+Klasa odpowiedzialna za przechowywanie form podstawowych i ich tłumaczeń
+
+#### Adnotacje
+
+- `@Data`: Łączy funkcje adnotacji:
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.    
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
+- `@Entity`: Klasa jest obiektem JPA
+- `@IdClass(LemmaId.class)`: Klasa `Lemma` posiada złożony klucz główny, natomiast klasa `LemmaId` reprezentuje ten klucz.
+- `@AllArgsConstructor`: Dodaje konstruktor dla wszystkich argumentów
+- `@NoArgsConstructor`: Dodaje konstruktor bezargumentowy (wymagane przez JPA)
+
+#### Pola
+
+1. **`name`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@Id`: Pole jest częścią klucza głównego
+        - `@NotBlank`: Pole nie może być `null` ani pustym łańcuchem.
+    - Opis: Forma podstawowa słowa
+
+2. **`translation`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotBlank`: Pole nie może być `null` ani pustym łańcuchem.
+    - Opis: Nazwa języka
+
+2. **`language`**
+    - Typ: `Language`
+    - Adnotacje:
+        - `@Id`: Pole jest częścią klucza głównego
+        - `@ManyToOne`: Pole jest po stronie *many* w relacji *One To Many*
+        - `@JoinColumn(name = "language_id")`: Kolumna odpowiedzialna za połaczenie tabel to `language_id`
+    - Opis: Język, w którym jest podane słowo bazowe.
+
+---
+
+#### 4. Klasa `LemmaId`
+
+#### Opis
+
+Klasa reprezentująca złożony klucz główny tabeli `Lemma`. Klasa implementuje interfejs `Serializable`
+
+#### Adnotacje 
+
+- `@Data`: Łączy funkcje adnotacji:
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.    
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
+- `@NoArgsConstructor`: Dodaje konstruktor bezargumentowy (wymagane przez JPA)
+
+#### Pola
+
+1. **`name`**
+    - Typ: `String`
+    - Opis: Forma bazowa słowa
+
+2. **`language`**
+    - Typ: `String`
+    - Opis: Kod języka.
+
+---
+
+#### 5. Klasa `Sentence`
+
+#### Opis
+
+Klasa reprezentująca blok tekstu
+
+#### Adnotacje
+
+- `@Value`: Oznacza klase jako niemutowalną, łączy funkcje adnotacji
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@AllArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich pól
+
+#### Pola
+
+1. **`text`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotBlank`: Pole nie może być `null` ani pustym łańcuchem.
+    - Opis: Blok tekstu podany przez użytkownika
+
+2. **`language`**
+    - Typ: `Language`
+    - Adnotacje:
+        - `@NotNull`: Pole nie może być `null`.
+    - Opis: Język, w którym tekst został podany.
+
 
 ### Pakiet: `dto`
 
