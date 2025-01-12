@@ -499,7 +499,7 @@ http://URL/api/lemmas/dog?language.name=English&language.id=en
 
 ### Pakiet: `repository`
 
-#### Klasa: `FlashcardRepository`
+#### 1. Klasa: `FlashcardRepository`
 
 #### Opis
 
@@ -517,34 +517,99 @@ http://URL/api/lemmas/dog?language.name=English&language.id=en
 
 #### Metody
 
-1. `getAll()`
+1. `findAll()`
     - Zwracany typ: `List<Flashcard>`
     - Opis: Zwraca listę wszystkich fiszek
 
 2. `findByWord(String word)`
     - Zwracany typ: `Optional<Flashcard>`
     - Argumenty:
-        - `String word`: Słowo, dla którego ma zostać zwrócona fiszka.
+        - `String word`: Słowo, dla którego ma zostać zwrócona fiszka. (wyszukiwana jest na podstawie słowa w tekście, NIE formy bazowej)
     - Opis: Zwraca `Optional` z fiszką zawierającą dane słowo lub pusty `Optional` jeśli fiszka nie istnieje
 
-3. `findByWordOrThrow(String word)`
-    - Zwracany typ: `Flashcard`
+3. `save(Flashcard flashcard)`
+    - Zwracany typ: `void`
     - Argumenty:
-        - `String word`: Słowo, dla ktorego ma zostać zwrócona fiszka
-    - Opis: Działa analogicznie do `findByWord`, jednak rzuca wyjątek jeśli fiszka nie została znaleziona
+        - `Flashcard flashcard`: fiszka do aktualizacji
+    - Opis: Tymczasowo zapisuje istniejącą fiszkę (fiszki nie są przechowywane w bazie danych)
 
-4. `updateByWord(String word, String translation)`
+
+4. `update(Flashcard flashcard)`
+    - Zwracany typ: `void`
+    - Argumenty:
+        - `Flashcard flashcard`: fiszka do aktualizacji
+    - Opis: Aktualizuje istniejącą fiszkę
+
+5. `delete(Flashcard flashcard)`
     - Typ: `void`
     - Argumenty:
-        - `String word`: Słowo, dla którego tłumaczenie ma zostać zmienione
-        - `String translation`: Nowe tłumaczenie
-    - Opis: Metoda zmienia tłumaczenie fiszki dla danego słowa. **UWAGA**, metoda korzysta z `findWordOrThrow`, rzuca wyjątek jeśli fiszka nie została znaleziona
-
-5. `removeByWord(String word)`
-    - Typ: `void`
-    - Argumenty:
-        - `String word`: Słowo, dla którego fiszka ma zostać usunięta.
+        - `Flashcard flashcard`: Fiszka, która ma zostać usunięta (usuwana jest na podstawie słowa w tekście)
     - Opis: Usuwa fiszkę
+
+---
+
+#### 2. Klasa `SentenceRepository`
+
+#### Opis
+
+Obsługuje aktualnie przetwarzane zdanie
+
+#### Adnotacje
+
+- `@Repository`: Klasa jest komponentem springa odpowiedzialnym za perzystencję danych.
+
+#### Pola
+
+1. `sentence`
+    - Typ: `Sentence`
+    - Opis: Zawiera aktualnie przetwarzany tekst.
+
+#### Metody
+
+1. `findOne()`
+    - Zwracany typ: `Optional<Sentence>`
+    - Opis: Zwraca przetwarzany tekst
+
+2. `save(Sentence sentence)`
+    - Zwracany typ: `void`
+    - Argumenty:
+        - `Sentence sentence`: tejst, który ma zostać zapisany
+    - Opis: Zapisuje tekst
+
+---
+
+#### 3. Interfejs `LanguageRepository`
+
+#### Opis
+
+Repozytorium JPA służące do zapisywania języków w bazie danych
+
+#### Adnotacje 
+
+- `@Repository`: Klasa jest komponentem springa odpowiedzialnym za perzystencję danych.
+
+---
+
+#### 4. Interfejs `LemmaRepository`
+
+#### Opis
+
+Repozytorium JPA, służy do zapisywania form bazowych z tłumaczeniami w bazie danych.
+
+#### Adnotacje
+
+- `@Repository`: Klasa jest komponentem springa odpowiedzialnym za perzystencję danych.
+
+#### Dodatkowe metody
+
+1. `findOneByNameAndLanguage(String name, Language language)`
+    - Zwracany typ: `Optional<Lemma>`
+    - Argumenty:
+        - `String name`: szukana forma bazowa
+        - `Language language`: język, dla którego ma zostać znalezione tłumaczenie
+    - Adnotacje:
+        - `@Query("SELECT l FROM Lemma l WHERE l.name = :name AND l.language = :language")`
+    - Opis: Funkcja realizuje zapytanie do bazy danych, zwraca tłumaczenie dla zadanej formy bazowej w zadanym języku
 
 ---
 
