@@ -16,18 +16,24 @@ const FlashcardProvider = ({ children }) => {
 
   useEffect(() => {
     revalidateFlashcards();
+    revalidateSentence();
     revalidateLanguages();
   }, []);
 
   const revalidateFlashcards = async () => {
-    const { sentence, flashcards } = await flashcardApi.getAll();
-    setSentence(sentence);
+    const flashcards = await flashcardApi.getAll();
     setFlashcards(flashcards);
   };
 
-  const addFlashcards = async (payload) => {
-    await flashcardApi.add(payload);
+  const revalidateSentence = async () => {
+    const sentence = await flashcardApi.getSentence();
+    setSentence(sentence);
+  };
+
+  const createFlashcards = async (payload) => {
+    await flashcardApi.create(payload);
     revalidateFlashcards();
+    revalidateSentence();
   };
 
   const updateFlashcard = async (flashcard) => {
@@ -69,7 +75,7 @@ const FlashcardProvider = ({ children }) => {
         sentence,
         flashcards,
         exportedCSV,
-        addFlashcards,
+        createFlashcards,
         updateFlashcard,
         removeFlashcard,
         exportFlashcards,

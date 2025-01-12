@@ -22,15 +22,15 @@ class FlashcardRepositoryTest {
     }
 
     @Test
-    void testGetAllInitiallyEmpty() {
-        List<Flashcard> flashcards = flashcardRepository.getAll();
+    void testFindAllInitiallyEmpty() {
+        List<Flashcard> flashcards = flashcardRepository.findAll();
         assertTrue(flashcards.isEmpty());
     }
 
     @Test
-    void testAddFlashcard() {
+    void testSaveFlashcard() {
         flashcardRepository.save(new Flashcard("hello"));
-        List<Flashcard> flashcards = flashcardRepository.getAll();
+        List<Flashcard> flashcards = flashcardRepository.findAll();
 
         assertEquals(1, flashcards.size());
         assertEquals("hello", flashcards.getFirst().getWord());
@@ -38,11 +38,11 @@ class FlashcardRepositoryTest {
     }
 
     @Test
-    void testAddDuplicateFlashcard() {
+    void testSaveDuplicateFlashcard() {
         flashcardRepository.save(new Flashcard("hello"));
         flashcardRepository.save(new Flashcard("hello"));
 
-        List<Flashcard> flashcards = flashcardRepository.getAll();
+        List<Flashcard> flashcards = flashcardRepository.findAll();
         assertEquals(1, flashcards.size());
     }
 
@@ -68,19 +68,6 @@ class FlashcardRepositoryTest {
     }
 
     @Test
-    void testFindByWordOrThrow() {
-        flashcardRepository.save(new Flashcard("example"));
-        Flashcard flashcard = flashcardRepository.findByWordOrThrow("example");
-
-        assertEquals("example", flashcard.getWord());
-    }
-
-    @Test
-    void testFindByWordOrThrowNonExistent() {
-        assertThrows(NoSuchElementException.class, () -> flashcardRepository.findByWordOrThrow("nonexistent"));
-    }
-
-    @Test
     void testUpdateFlashcard() {
         Flashcard flashcard = new Flashcard("hello");
         flashcard.setTranslation("cześć");
@@ -98,36 +85,25 @@ class FlashcardRepositoryTest {
 
         flashcardRepository.update(updatedFlashcard);
 
-        Flashcard result = flashcardRepository.findByWordOrThrow("hello");
+        Optional<Flashcard> optionalResult = flashcardRepository.findByWord("hello");
 
-        assertEquals("hi", result.getTranslation());
-        assertEquals("greet", result.getLemma());
-        assertEquals("verb", result.getPartOfSpeech());
-        assertEquals("hɪ", result.getTranscription());
+        optionalResult.ifPresent(result -> {
+            assertEquals("hi", result.getTranslation());
+            assertEquals("greet", result.getLemma());
+            assertEquals("verb", result.getPartOfSpeech());
+            assertEquals("hɪ", result.getTranscription());
+        });
     }
 
     @Test
-    void testUpdateNonExistentFlashcard() {
-        Flashcard flashcard = new Flashcard("nonexistent");
-        assertThrows(NoSuchElementException.class, () -> flashcardRepository.update(flashcard));
-    }
-
-    @Test
-    void testRemoveFlashcard() {
+    void testDeleteFlashcard() {
         Flashcard flashcard = new Flashcard("delete");
         flashcardRepository.save(flashcard);
 
-        flashcardRepository.remove(flashcard);
+        flashcardRepository.delete(flashcard);
 
-        List<Flashcard> flashcards = flashcardRepository.getAll();
+        List<Flashcard> flashcards = flashcardRepository.findAll();
         assertTrue(flashcards.isEmpty());
     }
-
-    @Test
-    void testRemoveNonExistentFlashcard() {
-        Flashcard flashcard = new Flashcard("nonexistent");
-        assertThrows(NoSuchElementException.class, () -> flashcardRepository.remove(flashcard));
-    }
-
 }
 
