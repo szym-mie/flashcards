@@ -885,6 +885,10 @@ Aplikacja korzysta z bazy danych SQLite, która składa się z dwóch tabel: `Tr
         - Klucz główny.
     - **`language`** *(varchar(30))*: Pełna nazwa języka (np. "English").
 
+#### Link do schematu
+
+[Kliknij tutaj aby przejśc do strony z wizualizacją diagramu](https://dbdiagram.io/d/6759ff8546c15ed47917a12f)
+
 #### Relacje
 
 - **Relacja między tabelami**:
