@@ -400,6 +400,103 @@ http://URL/api/lemmas/dog?language.name=English&language.id=en
 
 ---
 
+#### 2. Klasa: `LanguageService`
+
+#### Opis
+
+`LanguageService` odpowiada za przetwarzanie języków przed dodaniem ich do bazy danych.
+
+#### Adnotacje
+
+- `@Service`: Klasa jest komponentem Springa, który zarządza logiką biznesową.
+
+#### Pola
+
+1. **`languageRepository`**
+    - Typ: `LanguageRepository`
+    - Opis: Repozytorium do komunikacji z bazą danych.
+
+#### Metody
+
+1. **`getAll()`**
+    - Zwraca listę wszystkich języków
+    - Zwracany typ: `List<Language>`
+
+2. **`create(Language language)`**
+    - Dodaje język do bazy (jeśli nie istnieje)
+    - Parametry:
+        - `language`: dodawany język
+    - Zwracany typ: `Language`
+
+3. **`update(Language language)`**
+    - Aktualizuje istniejący język (zwraca błąd jeśli język nie istnieje)
+    - Parametry:
+        - `language`: aktualizowany język
+    - Zwracany typ: `void`
+
+---
+
+#### 3. Klasa: `FlashcardService`
+
+#### Opis
+
+`FlashcardService` tworzy fiszki na podstawie otrzymanego zdania z wykorzystaniem `TextProcessorService` oraz pozwala na ich aktualizację i usuwanie.
+
+#### Adnotacje
+
+- `@Service`: Klasa jest komponentem Springa, który zarządza logiką biznesową.
+- `@AllArgsConstructor`: Tworzy konstruktor dla wszystkich argumentów
+
+#### Pola
+
+1. **`textProcessorService`**
+    - Typ: `TextProcessorService`
+    - Opis: Service służący do rozdzielania wprowadzonego tekstu na osobne słowa
+
+2. **`flashcardRepository`**
+    - Typ: `FlashcardRepository`
+    - Opis: Repozytorium do przetwarzania aktualnie dodanych fiszek (fiszki nie są w całości zapisywanie do bazy)
+
+3. **`sentenceRepository`**
+    - Typ: `SentenceRepository`
+    - Opis: Repozytorium przechowujące aktualnie podane zdanie.
+
+#### Metody
+
+1. **`getAll()`**
+    - Zwraca listę wszystkich fiszek
+    - Zwracany typ: `List<Flashcard>`
+
+2. **`getSentence()`**
+    - Zwraca aktualnie przetwarzany tekst
+    - Zwracany typ: `Sentence`
+
+3. **`getByWordOrThrow(String word)`**
+    - Zwraca fiszkę na podstawie słowa (spośród aktualnie przetwarzanych). Rzuca wyjątek jeśli słowo nie istnieje
+    - Parametry:
+        - `String word`: szukany wyraz
+    - Zwracany typ: `Flashcard`
+
+4. **`create(Sentence sentence)`**
+    - Tworzy listę fiszek na podstawie wprowadzonego tekstu
+    - Parametry:
+        - `Sentence sentence`: tekst wejściowy
+    - Zwracany typ: `List<Flashcard>`
+
+5. **`update(Flashcard flashcard)`**
+    - Aktualizuje fiszkę lub zwraca błąd jeśli nie istnieje
+    - Parametry wejściowe:
+        - `Flashcard flashcard`: fiszka do edycji
+    - Zwracany typ: `void`
+
+6. **`remove(Flashcard flashcard)`**
+    - Usuwa fiszkę lub rzuca wyjątek jeśli nie istnieje
+    - Parametry wejściowe:
+        - `Flashcard flashcard`: fiszka do usunięcia
+    - Zwracany typ: `void`
+
+---
+
 ### Pakiet: `repository`
 
 #### Klasa: `FlashcardRepository`
