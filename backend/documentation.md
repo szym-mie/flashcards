@@ -830,6 +830,20 @@ Klasa reprezentująca blok tekstu
     - Ustawia ciało odpowiedzi na `"IO exception occurred"`.
     - Generuje odpowiedź z nagłówkami pustymi, kodem statusu `500 Internal Server Error` oraz informacjami o żądaniu.
 
+#### 2. `handleNoSuchElementException(NoSuchElementException exception)`
+
+- **Opis:** Obsługuje wyjątki typu `NoSuchElementException` i zwraca odpowiedź z kodem HTTP 404 Not Found
+- **Parametry:**
+    - `exception` – przechwycony wyjątek `NoSuchElementException`.
+- **Zwracany typ:** `ResponseEntity<String>`
+
+#### 3. `handleResourceAlreadyExists(ResourceAlreadyExistsException exception)`
+
+- **Opis:** Obsługuje wyjątki typu `ResourceAlreadyExistsException`, zwraca odpowiedź z kodem błedu HTTP 409 Conflict
+- **Parametry:**
+    - `exception`: przechwycony wyjątek `ResourceAlreadyExistsException`
+- **Zwracany typ:** `ResponseEntity<String>`
+
 ---
 
 ### Testowanie
