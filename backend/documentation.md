@@ -846,6 +846,48 @@ Klasa reprezentująca blok tekstu
 
 ---
 
+### Pakiet `export`
+
+#### Klasa `FlashcardCsvExporter`
+
+#### Opis
+
+Klasa odpowiedzialna za generowanie pliku CSV.
+
+#### Adnotacje
+
+- `@NoArgsConstructor`: Generuje pusty konstruktor
+
+#### Pola
+
+1. `schema`
+    - Typ: `CsvSchema`
+    - Opis: Schemat pliku CSV
+
+2. `mapper`
+    - Typ: `CsvMapper`
+    - Opis: Wykorzystany do mapowania fiszek na CSV
+
+#### Metody
+
+1. `write(List<Flashcard> flashcardList)`
+    - Zwracany typ: `String`
+    - Argumenty:
+        - `flashcardList`: Lista fiszek do przekształcenia na CSV
+    - Opis: Przekształca podaną listę fiszek na String w formacie CSV
+
+---
+
+### Pakiet `exception`
+
+#### Klasa `ResourceAlreadyExistsException`
+
+#### Opis
+
+Wyjątek typu *unchecked* rzucany gdy próbujemy stworzyć zasób (metoda POST), który już istnieje.
+
+---
+
 ### Testowanie
 
 - **Pokrycie Testami:**
