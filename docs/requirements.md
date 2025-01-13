@@ -46,16 +46,32 @@ ani złych praktyk.
   * itp.
 
 ## Kamień milowy 2
-W tym etapie dodajemy funkcjonalności związane z morfologią oraz fonetyką słów. Ponadto stworzymy podstawową warstwę persystencji. 
+W tym etapie dodajemy funkcjonalności związane z morfologią oraz fonetyką słów. 
+Ponadto stworzymy podstawową warstwę persystencji. 
 
 ### Wymagania funkcjonalne:
 * Podział słów na części mowy.
 * Formy fleksyjne.
 * Wyświetlanie tekstu w interlinii.
 * (Transliteracja) i transkrypcja.
-* Wiele tłumaczeń jednego słowa.
 * Eksportowanie tego do csv w kolejnych kolumnach.
 * Persystencja form słownikowych.
 
 ## Kamień milowy 3
-Funkcjonalności będą skoncentrowane na syntaksie zdań.
+Celem tego kroku jest umożliwienie wygenerowania pliku PDF lub graficznego na podstawie zadanego tekstu. 
+W pliku tym znajdzie się przygotowany wcześniej (i rozbudowany o analizę syntaksy) tekst interlinearny 
+wraz zaznaczeniem "metadanych" poszczególnych słów.
+
+### Wymagania funkcjonalne
+* Tekst generuje się do pliku PDF lub PNG.
+* Po wprowadzeniu tekstu dla każdego słowa pytamy o dotychczasowe infomacje o nim oraz o to jaką jest częścią zdania.
+* Na podstawie informacji o części mowy wybór części zdania jest ograniczony lub zbędny.
+* (Wsparcie dla orzeczeń imiennych/nominalnych np. `Adam jest (łącznik) dyrektorem (orzecznik).`)
+* Rozpoznawanie kropki jako końca zdania.
+* Wsparcie dla zdań złożonych rozdzielonych spójnikami. Wystarczy obsługa zdań o niemalejącym poziomie zagnieżdzenia.
+* Zdania podrzędne powinny być poprzedzone wcięciem, a współrzędne być na tym samym poziomie zagłębienia.
+* Ograniczone do języków indoeupejskich.
+
+### Wymagania niefunkcjonalne
+* Wspierane języki mogą korzystać ze statycznych plików konfiguracyjnych określających występujące w nim części mowy, 
+informację czy się deklinują (odmiana "rzeczownikopodobna") lub koniungują (odmiana "czasownikopodobna").
