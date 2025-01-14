@@ -23,12 +23,15 @@ Celem pierwszego etapu jest stworzenie aplikacji, która pozwoli na:
 - Aplikacja generuje fiszki w formacie CSV, zgodnym z aplikacjami do nauki języków obcych.
 - Struktura CSV:
     - **Kolumna 1:** Słowo w języku obcym.
-    - **Kolumna 2:** Tłumaczenie użytkownika.
+    - **Kolumna 2:** Forma podsta
+    - **Kolumna 3:** Tłumaczenie użytkownika.
+    - **Kolumna 4:** Część mowy
+    - **Kolumna 5:** Transkrypcja (zapis fonetyczny)
 - Przykład:
 
 ```csv
-  tree,drzewo  
-  apple,jabłko
+  tree,tree,drzewo,rzeczownik,tri
+  did,do,robić,czasownik,did
 ```
 
 ### 2. Przyjmowanie Bloku Tekstu
@@ -38,13 +41,18 @@ Celem pierwszego etapu jest stworzenie aplikacji, która pozwoli na:
 
 ### 3. Interaktywne Odpytywanie o Tłumaczenia
 
-- Aplikacja pyta użytkownika o tłumaczenia poszczególnych słów z tekstu.
+- Aplikacja pyta użytkownika o:
+    - formy podstawowe wyrazów,
+    - tłumaczenia wyrazów,
+    - części mowy
+    - zapis fonetyczny
 
 ### 4. Interfejs Użytkownika
 
 - Prosty, interaktywny interfejs umożliwiający:
     - Wprowadzenie tekstu.
     - Podgląd wygenerowanych fiszek.
+    - Podgląd tekstu wejściowego z dodanymi tłumaczeniami, transkrypcją etc.
     - Eksport zestawów do pliku.
 
 - Pełna obsługa znaków Unicode dla różnych alfabetów, np. chińskiego czy cyrylicy.
@@ -66,13 +74,15 @@ Wystarczy uruchomić serwer i
 
 Główne pakiety projektu to:
 
+- `config`
 - `controller`
-- `service`
-- `model`
 - `dto`
-- `handler`
-- `util`
 - `exception`
+- `export`
+- `handler`
+- `model`
+- `repository`
+- `service`
 
 Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane klasy.
 
@@ -80,7 +90,7 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 
 ### Pakiet: `controller`
 
-#### Klasa: `FlashcardController`
+#### 1. Klasa: `FlashcardController`
 
 #### Opis
 
@@ -92,19 +102,19 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 
 - `@RestController`: Klasa jest kontrolerem REST API.
 - `@RequestMapping("/api/flashcards")`: Wszystkie metody w tej klasie obsługują żądania o prefiksie URL `/api/flashcards`.
-- `@AllArgsConstructor`: Automatyczne generowanie konstruktora z polami finalnymi.
+- `@ReqauiredArgsConstructor`: Automatyczne generowanie konstruktora z polami finalnymi.
 
 ---
 
 #### Pola
 
-1. **`textProcessorService`**
-    - Typ: `TextProcessorService`
-    - Opis: Odpowiedzialny za przetwarzanie i analizę tekstu wejściowego.
-
-2. **`flashcardService`**
+1. **`flashcardService`**
     - Typ: `FlashcardService`
     - Opis: Zarządza operacjami na fiszkach.
+
+2. **`csvExporter`**
+    - Typ: `FlashcardCsvExporter`
+    - Opis: Używany do zbudowania i zwrócenia pliku CSV
 
 ---
 
@@ -120,11 +130,17 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 [
     {
         "word": "tree",
-        "translation": "drzewo"
+        "lemma": "tree",
+        "translation": "drzewo",
+        "partOfSpeech": "rzeczownik",
+        "transcription": "tri"
     },
     {
-        "word": "apple",
-        "translation": "jabłko"
+        "word": "did",
+        "lemma": "do",
+        "translation": "robić",
+        "partOfSpeech": "czasownik",
+        "transcription": "did"
     }
 ]
 ```
@@ -138,16 +154,20 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 
 ```json
 {
-    "text": "This is an example sentence."
+    "text": "This is an example sentence.",
+    "language": {
+        "id": "en",
+        "name": "English"
+    }
 }
 ```
 
 - **Przykładowa odpowiedź:**
-  - W wypadku sukcesu: 204 No Cotent
+  - W wypadku sukcesu: 201 Created
 
 #### 3. `PUT /api/flashcards`
 
-- **Opis:** Aktualizuje tłumaczenie istniejącej fiszki.
+- **Opis:** Aktualizuje istniejącą fiszkę.
 - **Parametry wejściowe:** `Flashcard` w formacie JSON.
 - **Zwracany typ:** `ResponseEntity<Flashcard>`
 - **Przykład żądania:**
@@ -155,7 +175,10 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 ```json
 {
     "word": "tree",
-    "translation": "drzewo"
+    "lemma": "tree",
+    "translation": "drzewo",
+    "partOfSpeech": "rzeczownik",
+    "transcription": "tri"
 }
 ```
 
@@ -171,8 +194,11 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 
 ```json
 {
-    "word": "jabłko",
-    "translation": "" 
+    "word": "tree",
+    "lemma": "",
+    "translation": "",
+    "partOfSpeech": "",
+    "transcription": ""
 }
 ```
 
@@ -186,10 +212,157 @@ Każdy z pakietów pełni określoną rolę w projekcie i zawiera dedykowane kla
 - **Przykładowa odpowiedź:**
 
 ```csv
-word,translation  
-tree,drzewo  
-apple,jabłko
+word,lemma,translation,partOfSpeech,transcription  
+tree,tree,drzewo,rzeczownik,tri  
+did,do,robić,czasownik,did
 ```
+
+---
+
+#### 2. Klasa: `LanguageController`
+
+#### Opis
+
+Klasa ta jest REST controllerem, jest odpowiedzialna za obsługę żądań HTTP związanych z dodawaniem oraz przetwarzaniem języków
+
+#### Adnotacje
+
+- `@RestController`: Klasa jest kontrolerem REST API.
+- `@RequestMapping("/api/languages")`: Wszystkie metody w tej klasie obsługują żądania o prefiksie URL `/api/languages`.
+- `@AllArgsConstructor`: Automatyczne generowanie konstruktora dla wszystkich pól.
+
+#### Pola
+
+1. **`languageService`**
+    - Typ: `LanguageService`
+    - Opis: Serwis do obsługi oraz przetwarzania żądań
+
+#### Endpointy
+
+#### 1. `GET /api/languages`
+
+- **Opis**: Zwraca wszystkie języki
+- **Zwracany typ**: `ResponseEntity<List<Language>>`
+- **Przykładowa odpowiedź:**
+
+```json
+[
+    {
+        "id": "pl",
+        "name": "Polski"
+    },
+    {
+        "id": "en",
+        "name": "English"
+    }
+]
+```
+
+#### 2. `POST /api/languages`
+
+- **Opis:** Tworzy nowy język w bazie danych (zwraca błąd, jeśli język już istnieje)
+- **Parametry wejściowe:** `Language` w formacie JSON
+- **Zwracany typ:** `ResponseEntity<Language>`
+- **Przykład żądania:**
+
+```json
+{
+    "id": "cn",
+    "name": "Chinese"
+}
+```
+
+- **Przykładowa odpowiedź:**
+W przypadku sukcesu: 201 Created
+```json
+{
+    "id": "cn",
+    "name": "Chinese"
+}
+```
+
+#### 3. `PUT /api/languages`
+
+- **Opis:** Aktualizuje istniejący język (zwraca błąd gdy języka nie ma)
+- **Parametry wejściowe:** `Language` w formacie JSON
+- **Zwracany typ:** `ResponseEntity<Language>`
+- **Przykład żądania:**
+
+```json
+{
+    "id": "cn",
+    "name": "Chinese"
+}
+```
+
+- **Przykładowa odpowiedź:**
+    - W przypadku sukcesu: 204 No Content
+
+---
+
+#### 3. Klasa `LemmaController`
+
+#### Opis
+
+Kontroler obsługuje żądania HTTP dotyczące form podstawowych słów. Żądania wysyłane do tego kontrolera służą dodawaniu form podstawowych wraz z tłumaczeniami do bazy danych.
+
+#### Adnotacje
+
+- `@RestController`: Klasa jest kontrolerem REST API.
+- `@RequestMapping("/api/lemma")`: Wszystkie metody w tej klasie obsługują żądania o prefiksie URL `/api/lemma`.
+- `@AllArgsConstructor`: Automatyczne generowanie konstruktora dla wszystkich pól.
+
+#### Pola
+
+1. **`lemmaRepository`**
+    - Typ: `LemmaRepository`
+    - Opis: Repozytorium do komunikacji z bazą danych
+
+#### Endpointy
+
+#### 1. `GET /api/lemmas/{name}`
+
+- **Opis:** Zwraca tłumaczenie na podstawie formy bazowej oraz języka.
+- **Parametry wejściowe:** `name`, `language.name`, `language.id` jako parametry żądania
+- **Zwracany Typ:** `ResponseEntity<Lemma>`
+- **Przykład żądania:**
+```
+http://URL/api/lemmas/dog?language.name=English&language.id=en
+```
+
+- **Przykładowa odpowiedź:**
+
+```json
+{
+    "name": "dog",
+    "translation": "pies",
+    "language": {
+        "id": "en",
+        "name": "English"
+    }
+}
+```
+
+#### 2. `POST /api/lemmas`
+
+- **Opis:** Zapisuje formę bazową z tłumaczeniem do bazy danych
+- **Parametry wejściowe:** `Lemma` w formie JSON
+- **Zwracany typ**: `ResponseEntity<Lemma>`
+- **Przykład żądania:**
+
+```json
+{
+    "name": "dog",
+    "translation": "pies",
+    "language": {
+        "id": "en",
+        "name": "English"
+    }
+}
+```
+
+- **Przykładowa odpowiedź:**
+    - W przypadku sukcesu: 204 No Content
 
 ---
 
@@ -227,9 +400,106 @@ apple,jabłko
 
 ---
 
+#### 2. Klasa: `LanguageService`
+
+#### Opis
+
+`LanguageService` odpowiada za przetwarzanie języków przed dodaniem ich do bazy danych.
+
+#### Adnotacje
+
+- `@Service`: Klasa jest komponentem Springa, który zarządza logiką biznesową.
+
+#### Pola
+
+1. **`languageRepository`**
+    - Typ: `LanguageRepository`
+    - Opis: Repozytorium do komunikacji z bazą danych.
+
+#### Metody
+
+1. **`getAll()`**
+    - Zwraca listę wszystkich języków
+    - Zwracany typ: `List<Language>`
+
+2. **`create(Language language)`**
+    - Dodaje język do bazy (jeśli nie istnieje)
+    - Parametry:
+        - `language`: dodawany język
+    - Zwracany typ: `Language`
+
+3. **`update(Language language)`**
+    - Aktualizuje istniejący język (zwraca błąd jeśli język nie istnieje)
+    - Parametry:
+        - `language`: aktualizowany język
+    - Zwracany typ: `void`
+
+---
+
+#### 3. Klasa: `FlashcardService`
+
+#### Opis
+
+`FlashcardService` tworzy fiszki na podstawie otrzymanego zdania z wykorzystaniem `TextProcessorService` oraz pozwala na ich aktualizację i usuwanie.
+
+#### Adnotacje
+
+- `@Service`: Klasa jest komponentem Springa, który zarządza logiką biznesową.
+- `@AllArgsConstructor`: Tworzy konstruktor dla wszystkich argumentów
+
+#### Pola
+
+1. **`textProcessorService`**
+    - Typ: `TextProcessorService`
+    - Opis: Service służący do rozdzielania wprowadzonego tekstu na osobne słowa
+
+2. **`flashcardRepository`**
+    - Typ: `FlashcardRepository`
+    - Opis: Repozytorium do przetwarzania aktualnie dodanych fiszek (fiszki nie są w całości zapisywanie do bazy)
+
+3. **`sentenceRepository`**
+    - Typ: `SentenceRepository`
+    - Opis: Repozytorium przechowujące aktualnie podane zdanie.
+
+#### Metody
+
+1. **`getAll()`**
+    - Zwraca listę wszystkich fiszek
+    - Zwracany typ: `List<Flashcard>`
+
+2. **`getSentence()`**
+    - Zwraca aktualnie przetwarzany tekst
+    - Zwracany typ: `Sentence`
+
+3. **`getByWordOrThrow(String word)`**
+    - Zwraca fiszkę na podstawie słowa (spośród aktualnie przetwarzanych). Rzuca wyjątek jeśli słowo nie istnieje
+    - Parametry:
+        - `String word`: szukany wyraz
+    - Zwracany typ: `Flashcard`
+
+4. **`create(Sentence sentence)`**
+    - Tworzy listę fiszek na podstawie wprowadzonego tekstu
+    - Parametry:
+        - `Sentence sentence`: tekst wejściowy
+    - Zwracany typ: `List<Flashcard>`
+
+5. **`update(Flashcard flashcard)`**
+    - Aktualizuje fiszkę lub zwraca błąd jeśli nie istnieje
+    - Parametry wejściowe:
+        - `Flashcard flashcard`: fiszka do edycji
+    - Zwracany typ: `void`
+
+6. **`remove(Flashcard flashcard)`**
+    - Usuwa fiszkę lub rzuca wyjątek jeśli nie istnieje
+    - Parametry wejściowe:
+        - `Flashcard flashcard`: fiszka do usunięcia
+    - Zwracany typ: `void`
+
+---
+
 ### Pakiet: `repository`
 
-#### Klasa: `FlashcardRepository`
+#### 1. Klasa: `FlashcardRepository`
 
 #### Opis
 
@@ -247,46 +517,109 @@ apple,jabłko
 
 #### Metody
 
-1. `getAll()`
+1. `findAll()`
     - Zwracany typ: `List<Flashcard>`
     - Opis: Zwraca listę wszystkich fiszek
 
 2. `findByWord(String word)`
     - Zwracany typ: `Optional<Flashcard>`
     - Argumenty:
-        - `String word`: Słowo, dla którego ma zostać zwrócona fiszka.
+        - `String word`: Słowo, dla którego ma zostać zwrócona fiszka. (wyszukiwana jest na podstawie słowa w tekście, NIE formy bazowej)
     - Opis: Zwraca `Optional` z fiszką zawierającą dane słowo lub pusty `Optional` jeśli fiszka nie istnieje
 
-3. `findByWordOrThrow(String word)`
-    - Zwracany typ: `Flashcard`
+3. `save(Flashcard flashcard)`
+    - Zwracany typ: `void`
     - Argumenty:
-        - `String word`: Słowo, dla ktorego ma zostać zwrócona fiszka
-    - Opis: Działa analogicznie do `findByWord`, jednak rzuca wyjątek jeśli fiszka nie została znaleziona
+        - `Flashcard flashcard`: fiszka do aktualizacji
+    - Opis: Tymczasowo zapisuje istniejącą fiszkę (fiszki nie są przechowywane w bazie danych)
 
-4. `updateByWord(String word, String translation)`
+
+4. `update(Flashcard flashcard)`
+    - Zwracany typ: `void`
+    - Argumenty:
+        - `Flashcard flashcard`: fiszka do aktualizacji
+    - Opis: Aktualizuje istniejącą fiszkę
+
+5. `delete(Flashcard flashcard)`
     - Typ: `void`
     - Argumenty:
-        - `String word`: Słowo, dla którego tłumaczenie ma zostać zmienione
-        - `String translation`: Nowe tłumaczenie
-    - Opis: Metoda zmienia tłumaczenie fiszki dla danego słowa. **UWAGA**, metoda korzysta z `findWordOrThrow`, rzuca wyjątek jeśli fiszka nie została znaleziona
-
-5. `removeByWord(String word)`
-    - Typ: `void`
-    - Argumenty:
-        - `String word`: Słowo, dla którego fiszka ma zostać usunięta.
+        - `Flashcard flashcard`: Fiszka, która ma zostać usunięta (usuwana jest na podstawie słowa w tekście)
     - Opis: Usuwa fiszkę
+
+---
+
+#### 2. Klasa `SentenceRepository`
+
+#### Opis
+
+Obsługuje aktualnie przetwarzane zdanie
+
+#### Adnotacje
+
+- `@Repository`: Klasa jest komponentem springa odpowiedzialnym za perzystencję danych.
+
+#### Pola
+
+1. `sentence`
+    - Typ: `Sentence`
+    - Opis: Zawiera aktualnie przetwarzany tekst.
+
+#### Metody
+
+1. `findOne()`
+    - Zwracany typ: `Optional<Sentence>`
+    - Opis: Zwraca przetwarzany tekst
+
+2. `save(Sentence sentence)`
+    - Zwracany typ: `void`
+    - Argumenty:
+        - `Sentence sentence`: tejst, który ma zostać zapisany
+    - Opis: Zapisuje tekst
+
+---
+
+#### 3. Interfejs `LanguageRepository`
+
+#### Opis
+
+Repozytorium JPA służące do zapisywania języków w bazie danych
+
+#### Adnotacje 
+
+- `@Repository`: Klasa jest komponentem springa odpowiedzialnym za perzystencję danych.
+
+---
+
+#### 4. Interfejs `LemmaRepository`
+
+#### Opis
+
+Repozytorium JPA, służy do zapisywania form bazowych z tłumaczeniami w bazie danych.
+
+#### Adnotacje
+
+- `@Repository`: Klasa jest komponentem springa odpowiedzialnym za perzystencję danych.
+
+#### Dodatkowe metody
+
+1. `findOneByNameAndLanguage(String name, Language language)`
+    - Zwracany typ: `Optional<Lemma>`
+    - Argumenty:
+        - `String name`: szukana forma bazowa
+        - `Language language`: język, dla którego ma zostać znalezione tłumaczenie
+    - Adnotacje:
+        - `@Query("SELECT l FROM Lemma l WHERE l.name = :name AND l.language = :language")`
+    - Opis: Funkcja realizuje zapytanie do bazy danych, zwraca tłumaczenie dla zadanej formy bazowej w zadanym języku
 
 ---
 
 ### Pakiet: `model`
 
-#### Klasa: `Flashcard`
+#### 1. Klasa: `Flashcard`
 
 #### Opis
 
 `Flashcard` to model danych reprezentujący pojedynczą fiszkę. Zawiera informacje o słowie i jego tłumaczeniu.
-
----
 
 #### Adnotacje
 
@@ -296,8 +629,6 @@ apple,jabłko
     - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
     - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
     - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
-
----
 
 #### Pola
 
@@ -307,37 +638,36 @@ apple,jabłko
         - `@NotBlank`: pole nie może być równe `null` ani nie może być pustym łańcuchem (składającym się tylko z białych znaków).
     - Opis: Słowo w języku obcym.
 
-2. **`translation`**
+2. **`lemma`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotNull`: pole nie może być równe `null`
+    - Opis: Forma podstawowa słowa w języku obcym.
+
+3. **`translation`**
     - Typ: `String`
     - Adnotacje:
         - `@NotNull`: pole nie może być równe `null`
     - Opis: Tłumaczenie słowa wprowadzane przez użytkownika.
 
+4. **`partOfSpeech`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotNull`: pole nie może być równe `null`
+    - Opis: Częśc mowy do jakiej należy słowo.
+
+3. **`transcription`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotNull`: pole nie może być równe `null`
+    - Opis: Transkrypcja (zapis fonetyczny) słowa.
 ---
 
-#### Metody
-
-1. **`getWord()`**
-    - Zwraca wartość pola `word`.
-
-2. **`setWord(String word)`**
-    - Ustawia wartość pola `word`.
-
-3. **`getTranslation()`**
-    - Zwraca wartość pola `translation`.
-
-4. **`setTranslation(String translation)`**
-    - Ustawia wartość pola `translation`.
-
----
-
-### Pakiet: `dto`
-
-#### 1. Klasa: `SentenceRequest`
+#### 2. Klasa `Language`
 
 #### Opis
 
-`SentenceRequest` to klasa DTO (Data Transfer Object) reprezentująca żądanie użytkownika do przetwarzania zdania w aplikacji.
+Klasa przechowuje reprezentuję język
 
 #### Adnotacje
 
@@ -347,13 +677,126 @@ apple,jabłko
     - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
     - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
     - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
+- `@Entity`: Klasa jest obiektem JPA
+- `@AllArgsConstructor`: Dodaje konstruktor dla wszystkich argumentów
+- `@NoArgsConstructor`: Dodaje konstruktor bezargumentowy (wymagane przez JPA)
+
+#### Pola
+
+1. **`id`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@Id`: Pole jest kluczem głównym w bazie danych
+        - `@NotBlank`: Pole nie może być `null` ani pustym łańcuchem.
+    - Opis: Dwuliterowy kod języka
+
+2. **`name`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotBlank`: Pole nie może być `null` ani pustym łańcuchem.
+    - Opis: Nazwa języka
+
+---
+
+#### 3. Klasa `Lemma`
+
+#### Opis
+
+Klasa odpowiedzialna za przechowywanie form podstawowych i ich tłumaczeń
+
+#### Adnotacje
+
+- `@Data`: Łączy funkcje adnotacji:
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.    
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
+- `@Entity`: Klasa jest obiektem JPA
+- `@IdClass(LemmaId.class)`: Klasa `Lemma` posiada złożony klucz główny, natomiast klasa `LemmaId` reprezentuje ten klucz.
+- `@AllArgsConstructor`: Dodaje konstruktor dla wszystkich argumentów
+- `@NoArgsConstructor`: Dodaje konstruktor bezargumentowy (wymagane przez JPA)
+
+#### Pola
+
+1. **`name`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@Id`: Pole jest częścią klucza głównego
+        - `@NotBlank`: Pole nie może być `null` ani pustym łańcuchem.
+    - Opis: Forma podstawowa słowa
+
+2. **`translation`**
+    - Typ: `String`
+    - Adnotacje:
+        - `@NotBlank`: Pole nie może być `null` ani pustym łańcuchem.
+    - Opis: Nazwa języka
+
+2. **`language`**
+    - Typ: `Language`
+    - Adnotacje:
+        - `@Id`: Pole jest częścią klucza głównego
+        - `@ManyToOne`: Pole jest po stronie *many* w relacji *One To Many*
+        - `@JoinColumn(name = "language_id")`: Kolumna odpowiedzialna za połaczenie tabel to `language_id`
+    - Opis: Język, w którym jest podane słowo bazowe.
+
+---
+
+#### 4. Klasa `LemmaId`
+
+#### Opis
+
+Klasa reprezentująca złożony klucz główny tabeli `Lemma`. Klasa implementuje interfejs `Serializable`
+
+#### Adnotacje 
+
+- `@Data`: Łączy funkcje adnotacji:
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@Setter`: Automatycznie generuje metody `set` dla wszystkich pól klasy.    
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@RequiredArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich wymaganych pól
+- `@NoArgsConstructor`: Dodaje konstruktor bezargumentowy (wymagane przez JPA)
+
+#### Pola
+
+1. **`name`**
+    - Typ: `String`
+    - Opis: Forma bazowa słowa
+
+2. **`language`**
+    - Typ: `String`
+    - Opis: Kod języka.
+
+---
+
+#### 5. Klasa `Sentence`
+
+#### Opis
+
+Klasa reprezentująca blok tekstu
+
+#### Adnotacje
+
+- `@Value`: Oznacza klase jako niemutowalną, łączy funkcje adnotacji
+    - `@Getter`: Automatycznie generuje metody `get` dla wszystkich pól klasy.
+    - `@ToString`: Automatycznie generuje metodę `toString` dla klasy.
+    - `@EqualsAndHashcode`: Automatycznie generuje metory `equals` i `hashCode`.
+    - `@AllArgsConstructor`: Automatycznie tworzy konstruktor dla wszystkich pól
 
 #### Pola
 
 1. **`text`**
     - Typ: `String`
-    - Opis: Tekst wprowadzany przez użytkownika do przetworzenia.
-    - Walidacja: `@NotBlank` – pole nie może być puste.
+    - Adnotacje:
+        - `@NotBlank`: Pole nie może być `null` ani pustym łańcuchem.
+    - Opis: Blok tekstu podany przez użytkownika
+
+2. **`language`**
+    - Typ: `Language`
+    - Adnotacje:
+        - `@NotNull`: Pole nie może być `null`.
+    - Opis: Język, w którym tekst został podany.
 
 ---
 
@@ -386,6 +829,62 @@ apple,jabłko
 - **Działanie:**
     - Ustawia ciało odpowiedzi na `"IO exception occurred"`.
     - Generuje odpowiedź z nagłówkami pustymi, kodem statusu `500 Internal Server Error` oraz informacjami o żądaniu.
+
+#### 2. `handleNoSuchElementException(NoSuchElementException exception)`
+
+- **Opis:** Obsługuje wyjątki typu `NoSuchElementException` i zwraca odpowiedź z kodem HTTP 404 Not Found
+- **Parametry:**
+    - `exception` – przechwycony wyjątek `NoSuchElementException`.
+- **Zwracany typ:** `ResponseEntity<String>`
+
+#### 3. `handleResourceAlreadyExists(ResourceAlreadyExistsException exception)`
+
+- **Opis:** Obsługuje wyjątki typu `ResourceAlreadyExistsException`, zwraca odpowiedź z kodem błedu HTTP 409 Conflict
+- **Parametry:**
+    - `exception`: przechwycony wyjątek `ResourceAlreadyExistsException`
+- **Zwracany typ:** `ResponseEntity<String>`
+
+---
+
+### Pakiet `export`
+
+#### Klasa `FlashcardCsvExporter`
+
+#### Opis
+
+Klasa odpowiedzialna za generowanie pliku CSV.
+
+#### Adnotacje
+
+- `@NoArgsConstructor`: Generuje pusty konstruktor
+
+#### Pola
+
+1. `schema`
+    - Typ: `CsvSchema`
+    - Opis: Schemat pliku CSV
+
+2. `mapper`
+    - Typ: `CsvMapper`
+    - Opis: Wykorzystany do mapowania fiszek na CSV
+
+#### Metody
+
+1. `write(List<Flashcard> flashcardList)`
+    - Zwracany typ: `String`
+    - Argumenty:
+        - `flashcardList`: Lista fiszek do przekształcenia na CSV
+    - Opis: Przekształca podaną listę fiszek na String w formacie CSV
+
+---
+
+### Pakiet `exception`
+
+#### Klasa `ResourceAlreadyExistsException`
+
+#### Opis
+
+Wyjątek typu *unchecked* rzucany gdy próbujemy stworzyć zasób (metoda POST), który już istnieje.
 
 ---
 
@@ -441,6 +940,10 @@ Aplikacja korzysta z bazy danych SQLite, która składa się z dwóch tabel: `Tr
     - **`id`** *(varchar(2))*: Kod języka (np. "en").
         - Klucz główny.
     - **`language`** *(varchar(30))*: Pełna nazwa języka (np. "English").
+
+#### Link do schematu
+
+[Kliknij tutaj aby przejśc do strony z wizualizacją diagramu](https://dbdiagram.io/d/6759ff8546c15ed47917a12f)
 
 #### Relacje
 
