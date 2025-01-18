@@ -4,26 +4,68 @@ import IconButton from "~/components/IconButton";
 import Button from "~/components/Button";
 import Input from "~/components/Input";
 import FormField from "~/components/FormField";
-import Textarea from "~/components/Textarea";
+import { useForm } from "react-hook-form";
 import { useFlashcards } from "../context/FlashcardContext";
+import { useState } from "react";
 
-const EditFlashcardForm = ({ word, translation }) => {
+const EditFlashcardForm = (params) => {
   const close = useClose();
-  const { updateFlashcard, removeFlashcard } = useFlashcards();
+  const [translation, setTranslation] = useState(params.translation);
+  const { register, handleSubmit, getValues } = useForm({
+    defaultValues: {
+      word: params.word,
+      lemma: params.lemma,
+      partOfSpeech: params.partOfSpeech,
+      transcription: params.transcription,
+    },
+    values: {
+      translation: translation,
+    },
+  });
+  const { sentence, updateFlashcard, removeFlashcard, getLemma, upsertLemma } = useFlashcards();
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
+  const onSubmit = async (data) => {
+    await updateFlashcard({
+      word: params.word,
+      lemma: data.lemma,
+      translation: data.translation,
+      partOfSpeech: data.partOfSpeech,
+      transcription: data.transcription,
+    });
+    await upsertLemma({
+      name: data.lemma,
+      translation: translation,
+      language: sentence.language,
+    });
 
-    const formData = new FormData(event.target);
-    const translation = formData.get("translation");
-
-    await updateFlashcard({ word, translation });
     close();
   };
 
-  const handleRemove = async () => {
-    await removeFlashcard({ word, translation });
+  const onRemove = async () => {
+    await removeFlashcard({
+      word: params.word,
+      lemma: params.lemma,
+      translation: translation,
+      partOfSpeech: params.partOfSpeech,
+      transcription: params.transcription,
+    });
+
     close();
+  };
+
+  const onLemmaChange = async () => {
+    const lemma = await getLemma({
+      name: getValues("lemma"),
+      language: sentence.language,
+    });
+
+    if (lemma.translation) {
+      setTranslation(lemma.translation);
+    }
+  };
+
+  const onTranslationChange = () => {
+    setTranslation(getValues("translation"));
   };
 
   return (
@@ -37,16 +79,25 @@ const EditFlashcardForm = ({ word, translation }) => {
             <h3>Edytuj fiszke</h3>
             <IconButton variant="secondary" icon={X} onClick={close} />
           </header>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <FormField label="Słowo" className="mt-6">
-              <Input name="word" defaultValue={word} disabled />
+              <Input {...register("word", { disabled: true })} />
+            </FormField>
+            <FormField label="Forma bazowa" className="mt-4">
+              <Input {...register("lemma", { onChange: onLemmaChange })} />
             </FormField>
             <FormField label="Tłumaczenie" className="mt-4">
-              <Textarea name="translation" defaultValue={translation} />
+              <Input {...register("translation", { onChange: onTranslationChange })} />
+            </FormField>
+            <FormField label="Część mowy" className="mt-4">
+              <Input {...register("partOfSpeech")} />
+            </FormField>
+            <FormField label="Transkrypcja" className="mt-4">
+              <Input {...register("transcription")} />
             </FormField>
             <div className="mt-6 flex justify-end gap-2">
               <Button text="Anuluj" variant="secondary" onClick={close} />
-              <Button variant="secondary" text="Usuń" onClick={handleRemove} />
+              <Button variant="secondary" text="Usuń" onClick={onRemove} />
               <Button type="submit" text="Zapisz" />
             </div>
           </form>

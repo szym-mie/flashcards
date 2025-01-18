@@ -12,7 +12,7 @@ import java.util.Optional;
 public class FlashcardRepository {
     private final Map<String, Flashcard> flashcards = new HashMap<>();
 
-    public List<Flashcard> getAll() {
+    public List<Flashcard> findAll() {
         return flashcards.values().stream().toList();
     }
 
@@ -20,24 +20,24 @@ public class FlashcardRepository {
         return Optional.ofNullable(flashcards.get(word));
     }
 
-    public Flashcard findByWordOrThrow(String word) {
-        return findByWord(word).orElseThrow();
-    }
-
-    public void add(Flashcard flashcard) {
+    public void save(Flashcard flashcard) {
         String key = flashcard.getWord();
 
         flashcards.putIfAbsent(key, flashcard);
     }
 
-    public void updateByWord(String word, String translation) {
-        Flashcard flashcard = findByWordOrThrow(word);
-        flashcard.setTranslation(translation);
+    public void update(Flashcard flashcard) {
+        Optional<Flashcard> optionalFlashcard = findByWord(flashcard.getWord());
+
+        optionalFlashcard.ifPresent(foundFlashcard -> {
+            foundFlashcard.setLemma(flashcard.getLemma());
+            foundFlashcard.setTranslation(flashcard.getTranslation());
+            foundFlashcard.setPartOfSpeech(flashcard.getPartOfSpeech());
+            foundFlashcard.setTranscription(flashcard.getTranscription());
+        });
     }
 
-    public void removeByWord(String word) {
-        // ensure that flashcard exist
-        Flashcard flashcard = findByWordOrThrow(word);
+    public void delete(Flashcard flashcard) {
         flashcards.remove(flashcard.getWord());
     }
 }

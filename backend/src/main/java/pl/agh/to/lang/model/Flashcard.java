@@ -10,13 +10,22 @@ public class Flashcard {
     private final String word;
 
     @NotNull
+    private String lemma = ""; // base form
+
+    @NotNull
     private String translation = "";
+
+    @NotNull
+    private String partOfSpeech = "";
+
+    @NotNull
+    private String transcription = "";
+
 
     public Flashcard(String word) {
         if (word.isBlank()) {
             throw new IllegalArgumentException("Blank word");
         }
-
         this.word = word;
     }
 }

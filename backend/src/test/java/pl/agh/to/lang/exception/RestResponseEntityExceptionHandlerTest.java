@@ -11,7 +11,8 @@ import pl.agh.to.lang.handler.RestResponseEntityExceptionHandler;
 import java.io.IOException;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = {TestController.class, RestResponseEntityExceptionHandler.class})
 class RestResponseEntityExceptionHandlerTest {

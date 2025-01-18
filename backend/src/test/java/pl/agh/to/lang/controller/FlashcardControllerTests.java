@@ -11,8 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.agh.to.lang.model.Flashcard;
-import pl.agh.to.lang.repository.FlashcardRepository;
-import pl.agh.to.lang.service.TextProcessorService;
+import pl.agh.to.lang.service.FlashcardService;
 
 import java.util.List;
 
@@ -27,10 +26,10 @@ class FlashcardControllerTests {
     private MockMvc mvc;
 
     @MockitoBean
-    private TextProcessorService textProcessorService;
+    private FlashcardService flashcardService;
 
-    @MockitoBean
-    private FlashcardRepository flashcardRepository;
+    @Autowired
+    private FlashcardController flashcardController;
 
     @Test
     void testRetrieveAllFlashcards() throws Exception {
@@ -39,8 +38,7 @@ class FlashcardControllerTests {
         Flashcard flashcard2 = new Flashcard("world");
         flashcard2.setTranslation("świat");
 
-        Mockito.when(flashcardRepository.getAll())
-                .thenReturn(List.of(flashcard1, flashcard2));
+        Mockito.when(flashcardService.getAll()).thenReturn(List.of(flashcard1, flashcard2));
 
         mvc.perform(MockMvcRequestBuilders.get("/api/flashcards"))
                 .andExpect(status().isOk())
@@ -52,40 +50,39 @@ class FlashcardControllerTests {
 
     @Test
     void testProcessSentence() throws Exception {
-        Mockito.when(textProcessorService.extractWords(Mockito.any()))
-                .thenCallRealMethod();
-
-        Mockito.doNothing().when(flashcardRepository).add(Mockito.any());
+        Mockito.when(flashcardService.create(Mockito.any())).thenReturn(List.of(new Flashcard("example")));
 
         mvc.perform(MockMvcRequestBuilders.post("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"text\": \"example text\", \"direction\": \"LTR\"}"))
-                .andExpect(status().isNoContent());
+                        .content("{\"text\": \"example text\", \"language\": {\"id\": \"en\", \"name\": \"English\"}}"))
+                .andExpect(status().isCreated());
 
-        Mockito.verify(flashcardRepository, Mockito.times(2)).add(Mockito.any());
+        Mockito.verify(flashcardService, Mockito.atLeastOnce()).create(Mockito.any());
     }
+
 
     @Test
     void testTranslateFlashcard() throws Exception {
-        Mockito.doNothing().when(flashcardRepository).updateByWord(Mockito.anyString(), Mockito.anyString());
+        Mockito.doNothing().when(flashcardService).update(Mockito.any());
 
         mvc.perform(MockMvcRequestBuilders.put("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"word\": \"hello\", \"translation\": \"cześć\"}"))
+                        .content("{\"word\": \"hello\", \"lemma\": \"lemma-example\", \"translation\": \"cześć\", \"partOfSpeech\": \"noun\", \"transcription\": \"he-lo\"}"))
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(flashcardRepository).updateByWord("hello", "cześć");
+        Mockito.verify(flashcardService).update(Mockito.any());
     }
 
     @Test
     void testRemoveFlashcard() throws Exception {
-        Mockito.doNothing().when(flashcardRepository).removeByWord(Mockito.anyString());
+        Mockito.doNothing().when(flashcardService).remove(Mockito.any());
 
         mvc.perform(MockMvcRequestBuilders.delete("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"word\": \"hello\", \"translation\": \"cześć\"}"))
+                        .content("{\"word\": \"hello\", \"lemma\": \"lemma-example\", \"translation\": \"cześć\", \"partOfSpeech\": \"noun\", \"transcription\": \"he-lo\"}"))
                 .andExpect(status().isNoContent());
-        Mockito.verify(flashcardRepository).removeByWord("hello");
+
+        Mockito.verify(flashcardService).remove(Mockito.any());
     }
 
     @Test
@@ -95,12 +92,14 @@ class FlashcardControllerTests {
         Flashcard flashcard2 = new Flashcard("John");
         flashcard2.setTranslation("Jan");
 
-        Mockito.when(flashcardRepository.getAll())
-                .thenReturn(List.of(flashcard1, flashcard2));
+        Mockito.when(flashcardService.getAll()).thenReturn(List.of(flashcard1, flashcard2));
 
         mvc.perform(MockMvcRequestBuilders.get("/api/flashcards/export")
-                        .contentType("text/csv"))
+                        .accept("text/csv"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("word,translation\nPeter,Piotr\nJohn,Jan\n"));
+                .andExpect(content().string(
+                        "word,lemma,translation,partOfSpeech,transcription\nPeter,,Piotr,,\nJohn,,Jan,,\n"
+                ));
     }
+
 }
