@@ -7,8 +7,8 @@ import lombok.Value;
 @Value
 public class Sentence {
     @NotBlank
-    String text;
+    private String text;
 
     @NotNull
-    Language language;
+    private Language language;
 }

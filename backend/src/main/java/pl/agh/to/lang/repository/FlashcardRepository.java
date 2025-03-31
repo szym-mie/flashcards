@@ -33,6 +33,7 @@ public class FlashcardRepository {
             foundFlashcard.setLemma(flashcard.getLemma());
             foundFlashcard.setTranslation(flashcard.getTranslation());
             foundFlashcard.setPartOfSpeech(flashcard.getPartOfSpeech());
+            foundFlashcard.setPartOfSentence(flashcard.getPartOfSentence());
             foundFlashcard.setTranscription(flashcard.getTranscription());
         });
     }

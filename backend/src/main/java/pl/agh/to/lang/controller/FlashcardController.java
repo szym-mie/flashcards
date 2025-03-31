@@ -3,7 +3,6 @@ package pl.agh.to.lang.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +11,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.agh.to.lang.export.FlashcardCsvExporter;
+import pl.agh.to.lang.dto.SentenceResponse;
+import pl.agh.to.lang.export.FlashcardCSVExporter;
+import pl.agh.to.lang.export.FlashcardPDFExporter;
 import pl.agh.to.lang.model.Flashcard;
 import pl.agh.to.lang.model.Sentence;
 import pl.agh.to.lang.service.FlashcardService;
@@ -25,7 +26,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FlashcardController {
     private final FlashcardService flashcardService;
-    private final FlashcardCsvExporter csvExporter = new FlashcardCsvExporter();
+    private final FlashcardCSVExporter csvExporter = new FlashcardCSVExporter();
+    private final FlashcardPDFExporter pdfExporter = new FlashcardPDFExporter();
 
     @GetMapping
     public ResponseEntity<List<Flashcard>> retrieveAllFlashcards() {
@@ -33,8 +35,8 @@ public class FlashcardController {
     }
 
     @GetMapping("/sentence")
-    public ResponseEntity<Sentence> retrieveSentence() {
-        return ResponseEntity.ok(flashcardService.getSentence());
+    public ResponseEntity<SentenceResponse> retrieveSentence() {
+        return ResponseEntity.ok(new SentenceResponse(flashcardService.getSentence().getText(), flashcardService.getSentence().getLanguage(), flashcardService.getSentencePhrases()));
     }
 
     @PostMapping
@@ -56,11 +58,15 @@ public class FlashcardController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/export")
+    @GetMapping(value = "/export_csv", produces = "text/csv")
     public ResponseEntity<String> exportToCSV() throws IOException {
-        MediaType mediaType = MediaType.parseMediaType("text/csv");
         return ResponseEntity.ok()
-                .contentType(mediaType)
-                .body(csvExporter.write(flashcardService.getAll()));
+                .body(csvExporter.export(flashcardService));
+    }
+
+    @GetMapping(value = "/export_pdf", produces = "application/octet-stream")
+    public ResponseEntity<byte[]> exportToPDF() throws IOException {
+        return ResponseEntity.ok()
+                .body(pdfExporter.export(flashcardService));
     }
 }

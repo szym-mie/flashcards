@@ -1,4 +1,3 @@
-
 /**
  * Base abstract class for API interaction
  * @abstract
@@ -21,8 +20,8 @@ class API {
   escapePath(path) {
     const tokens = path.split("/");
     return tokens
-      .filter(e => e.length > 0)
-      .map(e => "/" + e)
+      .filter((e) => e.length > 0)
+      .map((e) => "/" + e)
       .reduce((a, e) => a + e, "");
   }
 
@@ -32,6 +31,7 @@ class API {
    * @returns {string|null} Content-Type from object
    */
   static objectToContentType(object) {
+    if (object === null) return null;
     const objectClass = object.constructor;
 
     switch (objectClass) {
@@ -43,9 +43,10 @@ class API {
   }
 
   /**
-   * 
+   *
    */
   static objectToContentBody(object) {
+    if (object === null) return null;
     const objectClass = object.constructor;
 
     switch (objectClass) {
@@ -60,15 +61,19 @@ class API {
    * Parse and extract response body to an object of Content-Type
    * @private
    * @param {Response} response Response to be parsed
+   * @param {string} overrideContentType Override Content-Type detection
    * @returns {any} Object extracted from response
    */
-  static async responseToObject(response) {
+  static async responseToObject(response, overrideContentType = null) {
     const maybeContentType = response.headers.get("Content-Type");
-    const contentType = maybeContentType !== null ? maybeContentType : "text/html";
+    const foundContentType = maybeContentType !== null ? maybeContentType : "text/html";
+    const contentType = overrideContentType !== null ? overrideContentType : foundContentType;
 
     switch (contentType) {
       case "application/json":
         return await response.json();
+      case "application/octet-stream":
+        return await response.arrayBuffer();
       default:
         return await response.text();
     }
@@ -86,17 +91,17 @@ class API {
     const [method, path] = endpoint.split(":");
     const escapedPath = this.escapePath(path);
 
-    const headers = {}
-
-    if (contentType !== null) {
-      headers["Content-Type"] = contentType;
-    }
+    const headers = {};
 
     const predictContentType = API.objectToContentType(payload);
     const body = API.objectToContentBody(payload);
 
     if (predictContentType !== null) {
       headers["Content-Type"] = predictContentType;
+    }
+
+    if (contentType !== null) {
+      headers["Content-Type"] = contentType;
     }
 
     const hasBody = !(method == "GET" || method == "HEAD");

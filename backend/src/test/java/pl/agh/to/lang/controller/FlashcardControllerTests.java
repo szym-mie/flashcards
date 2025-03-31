@@ -11,6 +11,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import pl.agh.to.lang.model.Flashcard;
+import pl.agh.to.lang.helpers.PartOfSpeech;
 import pl.agh.to.lang.service.FlashcardService;
 
 import java.util.List;
@@ -67,7 +68,7 @@ class FlashcardControllerTests {
 
         mvc.perform(MockMvcRequestBuilders.put("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"word\": \"hello\", \"lemma\": \"lemma-example\", \"translation\": \"cześć\", \"partOfSpeech\": \"noun\", \"transcription\": \"he-lo\"}"))
+                        .content("{\"word\": \"hello\", \"lemma\": \"lemma-example\", \"translation\": \"cześć\", \"partOfSpeech\": \"NOUN\", \"partOfSentence\": \"OBJECT\", \"transcription\": \"he-lo\"}"))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(flashcardService).update(Mockito.any());
@@ -79,7 +80,7 @@ class FlashcardControllerTests {
 
         mvc.perform(MockMvcRequestBuilders.delete("/api/flashcards")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"word\": \"hello\", \"lemma\": \"lemma-example\", \"translation\": \"cześć\", \"partOfSpeech\": \"noun\", \"transcription\": \"he-lo\"}"))
+                        .content("{\"word\": \"hello\", \"lemma\": \"lemma-example\", \"translation\": \"cześć\", \"partOfSpeech\": \"NOUN\", \"partOfSentence\": \"OBJECT\", \"transcription\": \"he-lo\"}"))
                 .andExpect(status().isNoContent());
 
         Mockito.verify(flashcardService).remove(Mockito.any());
@@ -91,14 +92,15 @@ class FlashcardControllerTests {
         flashcard1.setTranslation("Piotr");
         Flashcard flashcard2 = new Flashcard("John");
         flashcard2.setTranslation("Jan");
+        flashcard2.setPartOfSpeech(PartOfSpeech.NOUN);
 
         Mockito.when(flashcardService.getAll()).thenReturn(List.of(flashcard1, flashcard2));
 
-        mvc.perform(MockMvcRequestBuilders.get("/api/flashcards/export")
+        mvc.perform(MockMvcRequestBuilders.get("/api/flashcards/export_csv")
                         .accept("text/csv"))
                 .andExpect(status().isOk())
                 .andExpect(content().string(
-                        "word,lemma,translation,partOfSpeech,transcription\nPeter,,Piotr,,\nJohn,,Jan,,\n"
+                        "word,lemma,translation,partOfSpeech,transcription\nPeter,,Piotr,,\nJohn,,Jan,NOUN,\n"
                 ));
     }
 

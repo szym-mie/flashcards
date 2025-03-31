@@ -1,37 +1,22 @@
-import { useEffect, useState } from "react";
-import { X, ClipboardCopy, Download, Check } from "lucide-react";
-import { DialogPanel, useClose } from "@headlessui/react";
+import { X } from "lucide-react";
+import { DialogPanel, useClose, Tab, TabGroup, TabList, TabPanels, TabPanel } from "@headlessui/react";
 import IconButton from "~/components/IconButton";
-import Button from "~/components/Button";
-import { useFlashcards } from "../context/FlashcardContext";
+import ExportViewCSV from "./ExportViewCSV";
+import ExportViewPDF from "./ExportViewPDF";
 
 const ExportForm = () => {
   const close = useClose();
-  const [copied, setCopied] = useState(false);
-  const { exportedCSV, exportFlashcards } = useFlashcards();
 
-  useEffect(() => {
-    exportFlashcards();
-  }, [exportFlashcards]);
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(exportedCSV);
-    setCopied(true);
-  };
-
-  const downloadCSV = () => {
-    const blob = new Blob([exportedCSV], { type: "text/csv" });
-
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "data.csv";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+  const exporters = [
+    {
+      type: "CSV",
+      exporter: <ExportViewCSV />,
+    },
+    {
+      type: "PDF",
+      exporter: <ExportViewPDF />,
+    },
+  ];
 
   return (
     <div className="fixed inset-0 z-10 w-screen overflow-y-auto">
@@ -46,17 +31,25 @@ const ExportForm = () => {
           </header>
           <div>
             <div className="h-4"></div>
-            <pre className="bg-slate-200 border rounded-xl p-4 max-h-60 overflow-y-scroll">
-              {exportedCSV}
-            </pre>
-            <div className="mt-6 flex justify-end gap-2">
-              <Button
-                icon={copied ? Check : ClipboardCopy}
-                text={copied ? "Skopiowane" : "Kopiuj"}
-                onClick={copyToClipboard}
-              />
-              <Button icon={Download} text="Pobierz" onClick={downloadCSV} />
-            </div>
+            <TabGroup>
+              <TabList className="flex gap-4">
+                {exporters.map(({ type }) => (
+                  <Tab
+                    key={type}
+                    className="rounded-full py-1 px-3 text-sm/6 focus:outline-none data-[selected]:bg-slate-200 data-[hover]:bg-slate-300 data-[selected]:data-[hover]:bg-slate-400 data-[focus]:outline-1 data-[focus]:outline-slate-500"
+                  >
+                    {type}
+                  </Tab>
+                ))}
+              </TabList>
+              <TabPanels className="mt-3">
+                {exporters.map(({ type, exporter }) => (
+                  <TabPanel key={type} className="rounded-xl bg-white/5 p-3">
+                    {exporter}
+                  </TabPanel>
+                ))}
+              </TabPanels>
+            </TabGroup>
           </div>
         </DialogPanel>
       </div>

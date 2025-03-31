@@ -5,6 +5,7 @@ import EditFlashcardForm from "~/components/EditFlashcardForm";
 import { useFlashcards } from "../context/FlashcardContext";
 import { useEffect } from "react";
 import Sentence from "./Sentence";
+import Phrases from "./Phrases";
 
 const FlashcardList = () => {
   const { sentence, flashcards } = useFlashcards();
@@ -19,16 +20,9 @@ const FlashcardList = () => {
     <>
       <header className="mb-8 text-center">
         <h1>Brak fiszek</h1>
-        <p className="mt-2 muted">
-          Nie posiadasz żadnych fiszek, kliknij przycisk poniżej aby dodać nowe.
-        </p>
+        <p className="mt-2 muted">Nie posiadasz żadnych fiszek, kliknij przycisk poniżej aby dodać nowe.</p>
       </header>
-      <Breadcrumb
-        mainText={<i>Dodaj...</i>}
-        noteText="Nowy tekst"
-        icon={Plus}
-        variant="primary"
-      >
+      <Breadcrumb mainText={<i>Dodaj...</i>} noteText="Nowy tekst" icon={Plus} variant="primary">
         <CreateFlashcardForm />
       </Breadcrumb>
     </>
@@ -37,8 +31,7 @@ const FlashcardList = () => {
       <header className="text-center">
         <h1>Twoje fiszki</h1>
         <p className="mt-2 muted">
-          Lista twoich wszystkich ({flashcards.length}) fiszek. Wybrany język
-          to: {sentence.language.name}
+          Lista twoich wszystkich ({flashcards.length}) fiszek. Wybrany język to: {sentence.language.name}
         </p>
       </header>
       <div className="flex flex-wrap justify-center items-stretch gap-3 mt-8 w-full max-w-[800px]">
@@ -53,16 +46,12 @@ const FlashcardList = () => {
             <EditFlashcardForm {...flashcard} />
           </Breadcrumb>
         ))}
-        <Breadcrumb
-          mainText={<i>Dodaj...</i>}
-          noteText="fiszkę lub tekst"
-          icon={Plus}
-          variant="primary"
-        >
+        <Breadcrumb mainText={<i>Dodaj...</i>} noteText="fiszkę lub tekst" icon={Plus} variant="primary">
           <CreateFlashcardForm />
         </Breadcrumb>
       </div>
       <Sentence />
+      <Phrases />
     </>
   );
 };

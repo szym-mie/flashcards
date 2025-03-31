@@ -1,6 +1,9 @@
-const Select = ({ items = [], className = "", ...props }) => {
+import { forwardRef } from "react";
+
+const SelectRender = ({ items = [], className = "", ...props }, ref) => {
   return (
     <select
+      ref={ref}
       className={`px-4 h-12 w-full outline-none rounded-lg border disabled:opacity-50 ${className}`}
       {...props}
     >
@@ -12,5 +15,7 @@ const Select = ({ items = [], className = "", ...props }) => {
     </select>
   );
 };
+
+const Select = forwardRef(SelectRender);
 
 export default Select;

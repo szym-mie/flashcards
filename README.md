@@ -1,3 +1,10 @@
+# Fiszki
+
+![sshot1](./docs/sshot1.png)
+![sshot2](./docs/sshot2.png)
+![sshot3](./docs/sshot3.png)
+![sshot4](./docs/sshot4.png)
+
 ## Instrukcja Uruchamiania Projektu
 
 Aby uruchomić projekt, wykonaj poniższe kroki:

@@ -35,4 +35,9 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
     protected ResponseEntity<String> handleResourceAlreadyExists(ResourceAlreadyExistsException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<String> handleIllegalArgumentException(IllegalArgumentException exception) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
 }

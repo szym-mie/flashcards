@@ -3,9 +3,10 @@ package pl.agh.to.lang.repository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import pl.agh.to.lang.model.Flashcard;
+import pl.agh.to.lang.helpers.PartOfSentence;
+import pl.agh.to.lang.helpers.PartOfSpeech;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,7 +73,8 @@ class FlashcardRepositoryTest {
         Flashcard flashcard = new Flashcard("hello");
         flashcard.setTranslation("cześć");
         flashcard.setLemma("hello");
-        flashcard.setPartOfSpeech("noun");
+        flashcard.setPartOfSpeech(PartOfSpeech.valueOf("NOUN"));
+        flashcard.setPartOfSentence(PartOfSentence.valueOf("OBJECT"));
         flashcard.setTranscription("he-lo");
 
         flashcardRepository.save(flashcard);
@@ -80,7 +82,8 @@ class FlashcardRepositoryTest {
         Flashcard updatedFlashcard = new Flashcard("hello");
         updatedFlashcard.setTranslation("hi");
         updatedFlashcard.setLemma("greet");
-        updatedFlashcard.setPartOfSpeech("verb");
+        updatedFlashcard.setPartOfSpeech(PartOfSpeech.valueOf("VERB"));
+        updatedFlashcard.setPartOfSentence(PartOfSentence.valueOf("PREDICATE"));
         updatedFlashcard.setTranscription("hɪ");
 
         flashcardRepository.update(updatedFlashcard);
@@ -90,7 +93,8 @@ class FlashcardRepositoryTest {
         optionalResult.ifPresent(result -> {
             assertEquals("hi", result.getTranslation());
             assertEquals("greet", result.getLemma());
-            assertEquals("verb", result.getPartOfSpeech());
+            assertEquals(PartOfSpeech.VERB, result.getPartOfSpeech());
+            assertEquals(PartOfSentence.PREDICATE, result.getPartOfSentence());
             assertEquals("hɪ", result.getTranscription());
         });
     }

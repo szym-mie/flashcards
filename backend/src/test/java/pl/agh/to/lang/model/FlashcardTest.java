@@ -3,6 +3,7 @@ package pl.agh.to.lang.model;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
@@ -14,7 +15,8 @@ class FlashcardTest {
 
         assertEquals("hello", flashcard.getWord());
         assertEquals("", flashcard.getTranslation());
-        assertEquals("", flashcard.getPartOfSpeech());
+        assertNull(flashcard.getPartOfSpeech());
+        assertNull(flashcard.getPartOfSentence());
         assertEquals("", flashcard.getTranscription());
     }
 

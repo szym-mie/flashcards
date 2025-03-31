@@ -21,8 +21,12 @@ class FlashcardAPI extends API {
     return await this.request("DELETE:/api/flashcards", flashcard);
   }
 
-  async export() {
-    return await this.request("GET:/api/flashcards/export");
+  async exportCSV() {
+    return await this.request("GET:/api/flashcards/export_csv", null, "text/csv");
+  }
+
+  async exportPDF() {
+    return await this.request("GET:/api/flashcards/export_pdf", null, "application/octet-stream");
   }
 }
 

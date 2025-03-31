@@ -12,12 +12,7 @@ const App = () => {
         <FlashcardList />
         <div className="flex-1" />
         <div className="h-4"></div>
-        <Breadcrumb
-          mainText={<i>Eksportuj...</i>}
-          noteText="do pliku CSV"
-          icon={FileDown}
-          variant="primary"
-        >
+        <Breadcrumb mainText={<i>Eksportuj...</i>} noteText="do pliku CSV/PDF" icon={FileDown} variant="primary">
           <ExportForm />
         </Breadcrumb>
       </div>
